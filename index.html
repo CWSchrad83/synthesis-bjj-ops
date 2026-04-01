@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Synthesis BJJ — Ops Console</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cyan: #00AEEF;
+  --cyan-dark: #0090c8;
+  --navy: #0d1b2a;
+  --navy-mid: #152233;
+  --navy-light: #1c2e42;
+  --navy-border: rgba(0,174,239,0.15);
+  --white: #f0f6fc;
+  --muted: #7a8fa3;
+  --success: #2ecc71;
+  --warn: #f0a500;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--navy); color:var(--white); font-family:'Barlow',sans-serif; font-weight:300; min-height:100vh; }
+
+header {
+  background:var(--navy-mid);
+  border-bottom:2px solid var(--cyan);
+  padding:10px 16px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+.logo-img { display:none; }
+.logo-text { font-family:'Barlow Condensed',sans-serif; font-size:19px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--white); }
+.logo-text span { color:var(--cyan); }
+.ops-badge { font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--muted); padding:2px 0; margin-left:2px; }
+
+.top-pricing {
+  background:var(--navy-mid);
+  border-bottom:1px solid var(--navy-border);
+  padding:10px 16px;
+}
+.top-pricing-grid {
+  display:grid;
+  grid-template-columns:280px 1fr;
+  gap:10px;
+  align-items:stretch;
+}
+.top-pricing-controls,
+.top-pricing-results {
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--navy-border);
+  border-radius:5px;
+  padding:10px 12px;
+}
+.top-pricing-title {
+  font-size:9px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:10px;
+}
+.top-pricing-inputs {
+  display:grid;
+  grid-template-columns:72px 72px 1fr;
+  gap:8px;
+  align-items:end;
+}
+.top-pricing-check {
+  display:flex;
+  align-items:center;
+  gap:6px;
+  height:100%;
+  font-size:12px;
+  color:rgba(240,246,252,0.84);
+  white-space:nowrap;
+}
+.top-pricing-check input { width:auto; accent-color:var(--cyan); }
+.top-pricing-output-grid {
+  display:grid;
+  grid-template-columns:140px 140px 1fr;
+  gap:8px;
+}
+.top-pricing-output {
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--navy-border);
+  border-radius:4px;
+  padding:9px 11px;
+}
+.top-pricing-output .lbl {
+  font-size:9px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:5px;
+}
+.top-pricing-output .val {
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:24px;
+  font-weight:700;
+  color:var(--white);
+  line-height:1;
+}
+.top-pricing-script {
+  font-size:13px;
+  line-height:1.35;
+  color:rgba(240,246,252,0.9);
+}
+
+.layout { display:grid; grid-template-columns:204px 1fr; min-height:calc(100vh - 58px); }
+
+.sidebar { background:var(--navy-mid); border-right:1px solid var(--navy-border); padding:12px 0; overflow-y:auto; }
+.sidebar-label { font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--muted); padding:10px 16px 5px; }
+.nav-btn {
+  display:flex; align-items:center; gap:9px;
+  width:100%; padding:8px 14px;
+  background:none; border:none; border-left:2px solid transparent;
+  color:rgba(240,246,252,0.5); font-family:'Barlow',sans-serif; font-size:13px;
+  cursor:pointer; text-align:left; transition:all 0.12s;
+}
+.nav-btn:hover { background:rgba(0,174,239,0.06); color:var(--white); }
+.nav-btn.active { background:rgba(0,174,239,0.1); color:var(--cyan); border-left-color:var(--cyan); }
+.nav-icon { font-size:13px; width:16px; opacity:0.7; }
+
+.main { padding:14px 18px 20px; max-width:980px; overflow-y:auto; }
+.panel { display:none; }
+.panel.active { display:block; }
+
+.panel-title { font-family:'Barlow Condensed',sans-serif; font-size:26px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--white); margin-bottom:3px; }
+.panel-sub { font-size:12px; color:var(--muted); margin-bottom:20px; }
+
+.quick-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin:0 0 12px; }
+.quick-card { background:rgba(255,255,255,0.03); border:1px solid var(--navy-border); border-radius:5px; padding:12px; }
+.quick-card.featured { background:rgba(0,174,239,0.08); border-color:rgba(0,174,239,0.35); }
+.quick-label { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+.quick-value { font-family:'Barlow Condensed',sans-serif; font-size:28px; font-weight:700; line-height:1; color:var(--white); }
+.quick-note { font-size:11px; color:var(--muted); margin-top:4px; line-height:1.35; }
+
+.policy-strip { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:0 0 12px; }
+.policy-item { background:rgba(255,255,255,0.02); border:1px solid var(--navy-border); border-radius:5px; padding:12px 14px; }
+.policy-item strong { display:block; font-size:12px; color:var(--white); margin-bottom:4px; }
+.policy-item span { font-size:12px; color:rgba(240,246,252,0.72); line-height:1.45; }
+
+.fast-stack { display:grid; gap:10px; }
+.script-list { display:grid; gap:8px; }
+.script-item { background:rgba(255,255,255,0.02); border:1px solid var(--navy-border); border-radius:5px; padding:12px 14px; }
+.script-head { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--cyan); margin-bottom:6px; }
+.script-copy { font-size:13px; line-height:1.5; color:rgba(240,246,252,0.9); }
+.script-copy strong { color:var(--white); font-weight:500; }
+
+.quick-answer { background:rgba(255,255,255,0.02); border:1px solid var(--navy-border); border-radius:5px; padding:16px; }
+.quick-answer-title { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+.quick-answer-body { font-size:14px; line-height:1.55; color:rgba(240,246,252,0.9); white-space:pre-wrap; }
+.quick-answer-body strong { color:var(--white); font-weight:500; }
+.quick-answer-body.tight { line-height:1.45; }
+
+.calc-summary { display:grid; grid-template-columns:1fr; gap:10px; margin:14px 0; }
+.calc-stat { background:rgba(255,255,255,0.02); border:1px solid var(--navy-border); border-radius:5px; padding:12px 14px; }
+.calc-stat-label { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+.calc-stat-value { font-family:'Barlow Condensed',sans-serif; font-size:24px; font-weight:700; color:var(--white); }
+.calc-stat-note { font-size:11px; color:var(--muted); margin-top:5px; line-height:1.35; }
+
+.calc-breakdown { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:0 0 14px; }
+.calc-box { background:rgba(255,255,255,0.02); border:1px solid var(--navy-border); border-radius:5px; padding:12px 14px; }
+.calc-box-title { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+.calc-list { display:grid; gap:6px; font-size:13px; color:rgba(240,246,252,0.86); }
+.calc-list div { display:flex; justify-content:space-between; gap:12px; }
+.calc-list span:last-child { color:var(--white); font-weight:500; }
+.compact-line { font-size:13px; line-height:1.55; color:rgba(240,246,252,0.86); }
+
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+.form-grid.three { grid-template-columns:1fr 1fr 1fr; }
+.form-grid.full { grid-template-columns:1fr; }
+.field { display:flex; flex-direction:column; gap:5px; }
+label { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); }
+input, select, textarea {
+  background:rgba(255,255,255,0.04); border:1px solid var(--navy-border);
+  border-radius:4px; color:var(--white); font-family:'Barlow',sans-serif;
+  font-size:13px; font-weight:300; padding:9px 11px; outline:none; transition:border-color 0.12s; width:100%;
+}
+input:focus, select:focus, textarea:focus { border-color:var(--cyan); }
+select option { background:var(--navy-mid); }
+textarea { resize:vertical; min-height:80px; }
+
+.check-grid { display:flex; flex-wrap:wrap; gap:8px; margin-top:4px; }
+.check-item { display:flex; align-items:center; gap:5px; font-size:12px; color:rgba(240,246,252,0.65); cursor:pointer; }
+.check-item input[type=checkbox] { width:auto; accent-color:var(--cyan); }
+
+.btn { background:var(--cyan); color:var(--navy); border:none; border-radius:4px; font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:700; letter-spacing:2px; text-transform:uppercase; padding:11px 24px; cursor:pointer; transition:background 0.12s; margin-top:8px; }
+.btn:hover { background:var(--cyan-dark); }
+.btn:disabled { background:var(--muted); cursor:not-allowed; }
+.btn-ghost { background:transparent; border:1px solid var(--navy-border); color:var(--white); font-family:'Barlow',sans-serif; font-size:12px; font-weight:400; letter-spacing:0; padding:7px 14px; margin-top:0; }
+.btn-ghost:hover { border-color:var(--cyan); color:var(--cyan); background:rgba(0,174,239,0.06); }
+
+.out-box { background:rgba(255,255,255,0.02); border:1px solid var(--navy-border); border-radius:5px; padding:18px; margin-top:16px; white-space:pre-wrap; font-size:13px; line-height:1.8; color:rgba(240,246,252,0.88); min-height:80px; }
+.out-box.loading { color:var(--muted); font-style:italic; }
+.out-actions { display:flex; gap:8px; margin-top:10px; }
+
+.divider { height:1px; background:var(--navy-border); margin:18px 0; }
+
+.pr-cards { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:16px 0; }
+.pr-card { background:rgba(255,255,255,0.03); border:1px solid var(--navy-border); border-radius:5px; padding:14px; }
+.pr-card.featured { border-color:var(--cyan); background:rgba(0,174,239,0.07); }
+.pr-card-lbl { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+.pr-card-amt { font-family:'Barlow Condensed',sans-serif; font-size:28px; font-weight:700; color:var(--white); }
+.pr-card-sub { font-size:11px; color:var(--muted); margin-top:2px; }
+
+.sched-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-top:14px; }
+.sched-day-hdr { font-family:'Barlow Condensed',sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:5px; padding-bottom:4px; border-bottom:1px solid var(--navy-border); }
+.sched-day-hdr.mon { color:var(--cyan); }
+.sched-cls { background:rgba(255,255,255,0.03); border-radius:3px; padding:5px 7px; margin-bottom:3px; font-size:10px; line-height:1.35; border-left:2px solid var(--muted); }
+.sched-cls.kids { border-left-color:var(--cyan); }
+.sched-cls.mma { border-left-color:#e74c3c; }
+.sched-cls.wrestling { border-left-color:var(--warn); }
+.sched-cls.striking { border-left-color:#a855f7; }
+.sched-cls.open { border-left-color:var(--success); }
+.sched-cls .cn { font-weight:500; color:var(--white); }
+.sched-cls .ct { color:var(--muted); font-size:9px; }
+
+.info-card { background:rgba(0,174,239,0.06); border:1px solid var(--navy-border); border-radius:5px; padding:14px 16px; margin-bottom:14px; font-size:13px; line-height:1.7; color:rgba(240,246,252,0.75); }
+.info-card strong { color:var(--cyan); font-weight:500; }
+
+.price-table { width:100%; border-collapse:collapse; margin:12px 0; font-size:13px; }
+.price-table th { text-align:left; padding:8px 12px; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--navy-border); font-weight:400; }
+.price-table td { padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.04); color:rgba(240,246,252,0.8); }
+.price-table tr:last-child td { border-bottom:none; }
+.price-table td.hl { color:var(--cyan); font-weight:500; }
+
+.spinner { display:inline-block; width:12px; height:12px; border:2px solid rgba(255,255,255,0.15); border-top-color:var(--cyan); border-radius:50%; animation:spin 0.65s linear infinite; vertical-align:middle; margin-right:5px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+.tag { display:inline-block; font-size:9px; letter-spacing:1px; padding:2px 7px; border-radius:2px; text-transform:uppercase; }
+.tag-cyan { background:rgba(0,174,239,0.15); color:var(--cyan); }
+.tag-green { background:rgba(46,204,113,0.15); color:var(--success); }
+
+/* Copy toast */
+.copy-toast {
+  position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(12px);
+  background:var(--success); color:#fff; padding:8px 22px; border-radius:4px;
+  font-family:'Barlow Condensed',sans-serif; font-size:13px; letter-spacing:2px; text-transform:uppercase;
+  opacity:0; transition:opacity 0.18s, transform 0.18s; pointer-events:none; z-index:9999;
+}
+.copy-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* SMS output */
+.sms-section { margin-top:10px; }
+.sms-label { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--cyan); margin-bottom:5px; display:flex; align-items:center; gap:8px; }
+.sms-label::after { content:''; flex:1; height:1px; background:var(--navy-border); }
+.sms-box { background:rgba(0,174,239,0.04); border:1px solid rgba(0,174,239,0.25); font-size:13px; line-height:1.6; color:rgba(240,246,252,0.88); min-height:48px; }
+.sms-char-count { font-size:11px; color:var(--muted); margin-left:auto; align-self:center; }
+.sms-char-count.over { color:#e74c3c; font-weight:500; }
+
+@media (max-width: 980px) {
+  .top-pricing-grid, .top-pricing-inputs, .top-pricing-output-grid,
+  .layout { grid-template-columns:1fr; }
+  .sidebar { border-right:none; border-bottom:1px solid var(--navy-border); padding:10px 0; }
+  .main { max-width:none; }
+  .quick-grid, .policy-strip, .calc-summary, .calc-breakdown, .pr-cards, .form-grid, .form-grid.three { grid-template-columns:1fr; }
+  .sched-grid { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <img class="logo-img" src="data:image/png;base64,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" alt="Synthesis BJJ">
+  <div>
+    <div class="logo-text">Synthesis <span>BJJ</span></div>
+  </div>
+  <div class="ops-badge">Ops Console</div>
+</header>
+
+<section class="top-pricing">
+  <div class="top-pricing-grid">
+    <div class="top-pricing-controls">
+      <div class="top-pricing-title">Quick Pricing</div>
+      <div class="top-pricing-inputs">
+        <div class="field">
+          <label>Kids</label>
+          <input type="number" id="qp-kids" value="0" min="0" oninput="calcQuickPricing()">
+        </div>
+        <div class="field">
+          <label>Adults</label>
+          <input type="number" id="qp-adults" value="1" min="0" oninput="calcQuickPricing()">
+        </div>
+        <label class="top-pricing-check">
+          <input type="checkbox" id="qp-discount" onchange="calcQuickPricing()">
+          Discount eligible
+        </label>
+      </div>
+    </div>
+    <div class="top-pricing-results">
+      <div class="top-pricing-title">Instant Quote</div>
+      <div class="top-pricing-output-grid">
+        <div class="top-pricing-output">
+          <div class="lbl">Monthly Total</div>
+          <div class="val" id="qp-monthly">--</div>
+        </div>
+        <div class="top-pricing-output">
+          <div class="lbl">Yearly Option</div>
+          <div class="val" id="qp-yearly">--</div>
+        </div>
+        <div class="top-pricing-output">
+          <div class="lbl">What To Say</div>
+          <div class="top-pricing-script" id="qp-line">Add members to quote.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="layout">
+<nav class="sidebar">
+  <button class="nav-btn active" onclick="showPanel('home',this)"><span class="nav-icon">•</span> Quick Desk</button>
+  <div class="sidebar-label">Emails</div>
+  <button class="nav-btn" onclick="showPanel('email-trial-adult',this)"><span class="nav-icon">✉</span> Adult Trial</button>
+  <button class="nav-btn" onclick="showPanel('email-member-adult',this)"><span class="nav-icon">✉</span> Adult Membership</button>
+  <button class="nav-btn" onclick="showPanel('email-yearly-adult',this)"><span class="nav-icon">✉</span> Adult Yearly Contract</button>
+  <button class="nav-btn" onclick="showPanel('email-trial-kids',this)"><span class="nav-icon">✉</span> Kids Trial</button>
+  <button class="nav-btn" onclick="showPanel('email-inquiry',this)"><span class="nav-icon">✉</span> Program Inquiry</button>
+  <button class="nav-btn" onclick="showPanel('email-payment',this)"><span class="nav-icon">✉</span> Payment Follow-up</button>
+  <div class="sidebar-label">Tools</div>
+  <button class="nav-btn" onclick="showPanel('pricing',this)"><span class="nav-icon">$</span> Pricing Builder</button>
+  <button class="nav-btn" onclick="showPanel('objection',this)"><span class="nav-icon">💬</span> Quick Scripts</button>
+  <button class="nav-btn" onclick="showPanel('dropin',this)"><span class="nav-icon">📋</span> Drop-in / Visitor</button>
+  <button class="nav-btn" onclick="showPanel('schedule',this)"><span class="nav-icon">📅</span> Schedule</button>
+  <div class="sidebar-label">Setup</div>
+  <button class="nav-btn" onclick="showPanel('settings',this)"><span class="nav-icon">⚙</span> API Key</button>
+</nav>
+
+<main class="main">
+
+<div id="panel-home" class="panel active">
+  <div class="panel-title">Quick Desk</div>
+
+  <div class="quick-grid">
+    <div class="quick-card featured">
+      <div class="quick-label">Adult</div>
+      <div class="quick-value">$160</div>
+      <div class="quick-note">$150 discounted adult</div>
+    </div>
+    <div class="quick-card">
+      <div class="quick-label">Kids</div>
+      <div class="quick-value">$120</div>
+      <div class="quick-note">Per month</div>
+    </div>
+    <div class="quick-card">
+      <div class="quick-label">Family</div>
+      <div class="quick-value">-$10</div>
+      <div class="quick-note">Off each additional member, max $425/month</div>
+    </div>
+  </div>
+
+  <div class="policy-strip">
+    <div class="policy-item"><strong>Refunds</strong><span>Full refund within 3 days. After that, monthly payments are non-refundable.</span></div>
+    <div class="policy-item"><strong>Cancel</strong><span>Early cancellation is a 2-month fee. Medical or relocation 25+ miles may qualify for an exception.</span></div>
+  </div>
+
+  <div class="fast-stack">
+    <div class="quick-answer">
+      <div class="quick-answer-title">Quote First</div>
+      <div class="quick-answer-body tight" id="home-price-summary"></div>
+    </div>
+    <div class="script-list">
+      <div class="script-item">
+        <div class="script-head">Trial Walk-In</div>
+        <div class="script-copy">"You can start the free 7-day trial today. Just check in on the iPad."</div>
+      </div>
+      <div class="script-item">
+        <div class="script-head">Family Pricing</div>
+        <div class="script-copy">"It is $10 off each additional family member, with a $425 household max."</div>
+      </div>
+      <div class="script-item">
+        <div class="script-head">Refund / Cancel</div>
+        <div class="script-copy">"<strong>Full refund within 3 days.</strong> After that, monthly payments are non-refundable. Early cancellation is a 2-month fee. Exceptions may apply for medical or relocation 25+ miles."</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADULT TRIAL -->
+<div id="panel-email-trial-adult" class="panel">
+  <div class="panel-title">Adult Trial Email</div>
+  <div class="panel-sub">Free 7-day trial welcome for new adult members.</div>
+  <div class="form-grid">
+    <div class="field"><label>First Name</label><input id="at-name" placeholder="e.g. Marcus"></div>
+    <div class="field"><label>Trial PIN</label><input id="at-pin" placeholder="e.g. 4602"></div>
+  </div>
+  <div class="form-grid full"><div class="field"><label>Email Address</label><input id="at-email" placeholder="member@email.com"></div></div>
+  <div class="field" style="margin-bottom:12px">
+    <label>Discount Eligibility</label>
+    <div class="check-grid">
+      <label class="check-item"><input type="checkbox" id="at-military"> Military / Veteran</label>
+      <label class="check-item"><input type="checkbox" id="at-leo"> LEO / First Responder</label>
+      <label class="check-item"><input type="checkbox" id="at-health"> Public Health Worker</label>
+      <label class="check-item"><input type="checkbox" id="at-college"> College Student</label>
+      <label class="check-item"><input type="checkbox" id="at-hs"> High Schooler (parent signed)</label>
+    </div>
+  </div>
+  <div class="form-grid">
+    <div class="field"><label>Kicksite Request Sent?</label>
+      <select id="at-kicksite"><option value="yes">Yes — include ignore note</option><option value="no">No — skip it</option></select>
+    </div>
+    <div class="field"><label>Additional Context (optional)</label><input id="at-notes" placeholder="e.g. stopped in today, referred by..."></div>
+  </div>
+  <button class="btn" onclick="generateEmail('adult-trial')">Generate Email</button>
+  <div id="output-email-trial-adult" class="out-box" style="display:none"></div>
+  <div id="actions-email-trial-adult" class="out-actions" style="display:none">
+    <button class="btn btn-ghost" onclick="copyOut('email-trial-adult')">Copy Email</button>
+    <button class="btn btn-ghost" onclick="generateSMS('email-trial-adult','sms-trial-adult')">Draft SMS</button>
+  </div>
+  <div class="sms-section" id="sms-section-trial-adult" style="display:none">
+    <div class="sms-label">SMS Draft</div>
+    <div id="output-sms-trial-adult" class="out-box sms-box"></div>
+    <div class="out-actions">
+      <button class="btn btn-ghost" onclick="copyOut('sms-trial-adult')">Copy SMS</button>
+      <span class="sms-char-count" id="sms-chars-trial-adult"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ADULT MEMBERSHIP -->
+<div id="panel-email-member-adult" class="panel">
+  <div class="panel-title">Adult Membership Email</div>
+  <div class="panel-sub">Welcome for new adult members who have fully signed up.</div>
+  <div class="form-grid">
+    <div class="field"><label>First Name</label><input id="am-name" placeholder="e.g. Tanner"></div>
+    <div class="field"><label>PIN</label><input id="am-pin" placeholder="e.g. 4018"></div>
+  </div>
+  <div class="form-grid full"><div class="field"><label>Email</label><input id="am-email" placeholder="member@email.com"></div></div>
+  <div class="form-grid">
+    <div class="field"><label>Monthly Rate</label>
+      <select id="am-rate"><option value="160">$160 / month (General)</option><option value="150">$150 / month (Discounted)</option></select>
+    </div>
+    <div class="field"><label>Bill Date (optional)</label><input id="am-billdate" placeholder="e.g. April 1st"></div>
+  </div>
+  <div class="field" style="margin-bottom:12px">
+    <label>Discount Group</label>
+    <div class="check-grid">
+      <label class="check-item"><input type="checkbox" id="am-military" onchange="syncAmRate()"> Military / Veteran</label>
+      <label class="check-item"><input type="checkbox" id="am-leo" onchange="syncAmRate()"> LEO / First Responder</label>
+      <label class="check-item"><input type="checkbox" id="am-health" onchange="syncAmRate()"> Public Health Worker</label>
+      <label class="check-item"><input type="checkbox" id="am-college" onchange="syncAmRate()"> College Student</label>
+      <label class="check-item"><input type="checkbox" id="am-hs" onchange="syncAmRate()"> High Schooler</label>
+    </div>
+  </div>
+  <div class="form-grid">
+    <div class="field"><label>Payment Method</label>
+      <select id="am-payment"><option value="kicksite">Kicksite</option><option value="venmo">Venmo</option><option value="cash">Cash / Check</option></select>
+    </div>
+    <div class="field"><label>Pitch 3-Month Deal?</label>
+      <select id="am-pitch3mo"><option value="light">Yes, lightly (default for new signups)</option><option value="no">No (already on yearly or declined)</option></select>
+    </div>
+  </div>
+  <div class="field" style="margin-bottom:12px"><label>Additional Notes</label><textarea id="am-notes" placeholder="e.g. signed online, walked in, referred by..."></textarea></div>
+  <button class="btn" onclick="generateEmail('adult-member')">Generate Email</button>
+  <div id="output-email-member-adult" class="out-box" style="display:none"></div>
+  <div id="actions-email-member-adult" class="out-actions" style="display:none">
+    <button class="btn btn-ghost" onclick="copyOut('email-member-adult')">Copy Email</button>
+    <button class="btn btn-ghost" onclick="generateSMS('email-member-adult','sms-member-adult')">Draft SMS</button>
+  </div>
+  <div class="sms-section" id="sms-section-member-adult" style="display:none">
+    <div class="sms-label">SMS Draft</div>
+    <div id="output-sms-member-adult" class="out-box sms-box"></div>
+    <div class="out-actions">
+      <button class="btn btn-ghost" onclick="copyOut('sms-member-adult')">Copy SMS</button>
+      <span class="sms-char-count" id="sms-chars-member-adult"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ADULT YEARLY -->
+<div id="panel-email-yearly-adult" class="panel">
+  <div class="panel-title">Adult Yearly Contract Email</div>
+  <div class="panel-sub">Welcome for members committing to a yearly upfront contract.</div>
+  <div class="info-card">
+    <strong>General Public:</strong> $1,700/year (~$141/mo) &nbsp;|&nbsp; <strong>Discounted:</strong> $1,500/year ($125/mo)<br>
+    Includes free gi OR rash guard + fight shorts (their choice).<br>
+    Early termination is a 2-month buyout at undiscounted rate ($320 general / $300 discounted).<br>
+    Cancellation exceptions may apply for medical reasons or relocation 25+ miles. Escalate if needed.
+  </div>
+  <div class="form-grid">
+    <div class="field"><label>First Name</label><input id="ay-name" placeholder="e.g. Dylan"></div>
+    <div class="field"><label>PIN</label><input id="ay-pin" placeholder="e.g. 5568"></div>
+  </div>
+  <div class="form-grid full"><div class="field"><label>Email</label><input id="ay-email" placeholder="member@email.com"></div></div>
+  <div class="form-grid">
+    <div class="field"><label>Yearly Rate</label>
+      <select id="ay-rate">
+        <option value="1700">$1,700 / year -- General Public</option>
+        <option value="1500">$1,500 / year -- Discounted</option>
+      </select>
+    </div>
+    <div class="field"><label>Discount Group (if applicable)</label>
+      <select id="ay-discount-group" onchange="syncAyRate()">
+        <option value="none">None / General Public</option>
+        <option value="military">Military / Veteran</option>
+        <option value="leo">LEO / First Responder</option>
+        <option value="health">Public Health Worker</option>
+        <option value="college">College Student</option>
+        <option value="hs">High Schooler (parent signed)</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-grid">
+    <div class="field"><label>Gear Choice Selected?</label>
+      <select id="ay-gear"><option value="ask">Not yet -- ask them (most pick gi)</option><option value="gi">Gi selected</option><option value="rashguard">Rash guard + fight shorts selected</option></select>
+    </div>
+    <div class="field"><label>Bill / Start Date (optional)</label><input id="ay-billdate" placeholder="e.g. April 1st"></div>
+  </div>
+  <div class="field" style="margin-bottom:12px"><label>Additional Notes</label><textarea id="ay-notes" placeholder="e.g. signed up in person, family member, referred by..."></textarea></div>
+  <button class="btn" onclick="generateEmail('adult-yearly')">Generate Email</button>
+  <div id="output-email-yearly-adult" class="out-box" style="display:none"></div>
+  <div id="actions-email-yearly-adult" class="out-actions" style="display:none">
+    <button class="btn btn-ghost" onclick="copyOut('email-yearly-adult')">Copy Email</button>
+    <button class="btn btn-ghost" onclick="generateSMS('email-yearly-adult','sms-yearly-adult')">Draft SMS</button>
+  </div>
+  <div class="sms-section" id="sms-section-yearly-adult" style="display:none">
+    <div class="sms-label">SMS Draft</div>
+    <div id="output-sms-yearly-adult" class="out-box sms-box"></div>
+    <div class="out-actions">
+      <button class="btn btn-ghost" onclick="copyOut('sms-yearly-adult')">Copy SMS</button>
+      <span class="sms-char-count" id="sms-chars-yearly-adult"></span>
+    </div>
+  </div>
+</div>
+
+<!-- KIDS TRIAL -->
+<div id="panel-email-trial-kids" class="panel">
+  <div class="panel-title">Kids Trial Email</div>
+  <div class="panel-sub">Welcome to parent/guardian for a child's free 7-day trial.</div>
+  <div class="form-grid">
+    <div class="field"><label>Parent / Guardian Name</label><input id="kt-parent" placeholder="e.g. Ashley"></div>
+    <div class="field"><label>Child's Name</label><input id="kt-child" placeholder="e.g. London"></div>
+  </div>
+  <div class="form-grid">
+    <div class="field"><label>Trial PIN</label><input id="kt-pin" placeholder="e.g. 8099"></div>
+    <div class="field"><label>Parent Email</label><input id="kt-email" placeholder="parent@email.com"></div>
+  </div>
+  <div class="field" style="margin-bottom:12px"><label>Additional Notes</label><textarea id="kt-notes" placeholder="e.g. high school age, digital waiver signed, stopped in today..."></textarea></div>
+  <button class="btn" onclick="generateEmail('kids-trial')">Generate Email</button>
+  <div id="output-email-trial-kids" class="out-box" style="display:none"></div>
+  <div id="actions-email-trial-kids" class="out-actions" style="display:none">
+    <button class="btn btn-ghost" onclick="copyOut('email-trial-kids')">Copy Email</button>
+    <button class="btn btn-ghost" onclick="generateSMS('email-trial-kids','sms-trial-kids')">Draft SMS</button>
+  </div>
+  <div class="sms-section" id="sms-section-trial-kids" style="display:none">
+    <div class="sms-label">SMS Draft</div>
+    <div id="output-sms-trial-kids" class="out-box sms-box"></div>
+    <div class="out-actions">
+      <button class="btn btn-ghost" onclick="copyOut('sms-trial-kids')">Copy SMS</button>
+      <span class="sms-char-count" id="sms-chars-trial-kids"></span>
+    </div>
+  </div>
+</div>
+
+<!-- PROGRAM INQUIRY -->
+<div id="panel-email-inquiry" class="panel">
+  <div class="panel-title">Program Inquiry Response</div>
+  <div class="panel-sub">Respond to general inquiries about programs and pricing.</div>
+  <div class="form-grid">
+    <div class="field"><label>Prospect Name</label><input id="inq-name" placeholder="e.g. Vanessa"></div>
+    <div class="field"><label>Email</label><input id="inq-email" placeholder="prospect@email.com"></div>
+  </div>
+  <div class="field" style="margin-bottom:12px"><label>Their Message / Context</label><textarea id="inq-message" placeholder="Paste their inquiry or describe their situation..." style="min-height:100px"></textarea></div>
+  <div class="field" style="margin-bottom:6px">
+    <label>Quick Presets</label>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">
+      <button class="btn btn-ghost" type="button" onclick="setInqPreset('adult')">Adult Inquiry</button>
+      <button class="btn btn-ghost" type="button" onclick="setInqPreset('kids')">Kids / Parent</button>
+      <button class="btn btn-ghost" type="button" onclick="setInqPreset('family')">Family</button>
+      <button class="btn btn-ghost" type="button" onclick="setInqPreset('all')">Full Overview</button>
+    </div>
+  </div>
+  <div class="field" style="margin-bottom:12px">
+    <label>Include In Response</label>
+    <div class="check-grid">
+      <label class="check-item"><input type="checkbox" id="inq-adult" checked> Adult pricing</label>
+      <label class="check-item"><input type="checkbox" id="inq-kids"> Kids program</label>
+      <label class="check-item"><input type="checkbox" id="inq-family"> Family discount</label>
+      <label class="check-item"><input type="checkbox" id="inq-trial" checked> Free trial offer</label>
+      <label class="check-item"><input type="checkbox" id="inq-3mo"> 3-month deal</label>
+      <label class="check-item"><input type="checkbox" id="inq-yearly"> Yearly deal</label>
+      <label class="check-item"><input type="checkbox" id="inq-schedule"> Schedule link</label>
+    </div>
+  </div>
+  <button class="btn" onclick="generateEmail('inquiry')">Generate Response</button>
+  <div id="output-email-inquiry" class="out-box" style="display:none"></div>
+  <div id="actions-email-inquiry" class="out-actions" style="display:none">
+    <button class="btn btn-ghost" onclick="copyOut('email-inquiry')">Copy Email</button>
+    <button class="btn btn-ghost" onclick="generateSMS('email-inquiry','sms-inquiry')">Draft SMS</button>
+  </div>
+  <div class="sms-section" id="sms-section-inquiry" style="display:none">
+    <div class="sms-label">SMS Draft</div>
+    <div id="output-sms-inquiry" class="out-box sms-box"></div>
+    <div class="out-actions">
+      <button class="btn btn-ghost" onclick="copyOut('sms-inquiry')">Copy SMS</button>
+      <span class="sms-char-count" id="sms-chars-inquiry"></span>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT FOLLOW-UP -->
+<div id="panel-email-payment" class="panel">
+  <div class="panel-title">Payment Follow-up</div>
+  <div class="panel-sub">Handle billing issues, expired cards, or payment method requests.</div>
+  <div class="form-grid">
+    <div class="field"><label>Member Name</label><input id="pay-name" placeholder="e.g. Cayden"></div>
+    <div class="field"><label>Email</label><input id="pay-email" placeholder="member@email.com"></div>
+  </div>
+  <div class="field" style="margin-bottom:12px"><label>Situation</label><textarea id="pay-situation" placeholder="e.g. Card expired, 2 months behind, total 00. Bill date 28th..." style="min-height:90px"></textarea></div>
+  <div class="field" style="margin-bottom:12px">
+    <label>Options to Offer</label>
+    <div class="check-grid">
+      <label class="check-item"><input type="checkbox" id="pay-kicksite" checked> Kicksite link (always include)</label>
+      <label class="check-item"><input type="checkbox" id="pay-venmo"> Venmo (if card keeps failing)</label>
+      <label class="check-item"><input type="checkbox" id="pay-billdate"> Change bill date (if timing is the issue)</label>
+      <label class="check-item"><input type="checkbox" id="pay-discount"> Check discount (if they might qualify)</label>
+    </div>
+  </div>
+  <button class="btn" onclick="generateEmail('payment')">Generate Email</button>
+  <div id="output-email-payment" class="out-box" style="display:none"></div>
+  <div id="actions-email-payment" class="out-actions" style="display:none">
+    <button class="btn btn-ghost" onclick="copyOut('email-payment')">Copy Email</button>
+    <button class="btn btn-ghost" onclick="generateSMS('email-payment','sms-payment')">Draft SMS</button>
+  </div>
+  <div class="sms-section" id="sms-section-payment" style="display:none">
+    <div class="sms-label">SMS Draft</div>
+    <div id="output-sms-payment" class="out-box sms-box"></div>
+    <div class="out-actions">
+      <button class="btn btn-ghost" onclick="copyOut('sms-payment')">Copy SMS</button>
+      <span class="sms-char-count" id="sms-chars-payment"></span>
+    </div>
+  </div>
+</div>
+
+<!-- PRICING BUILDER -->
+<div id="panel-pricing" class="panel">
+  <div class="panel-title">Pricing Builder</div>
+  <div class="panel-sub">Monthly total first. Extras only if they ask.</div>
+  <div class="quick-answer">
+    <div class="quick-answer-title">Base Rules</div>
+    <div class="quick-answer-body">Adult $160. Discounted adult $150. Kids $120. Take $10 off each additional family member. Max $425/month.</div>
+  </div>
+  <div class="form-grid three">
+    <div class="field"><label>General Adult Members</label><input type="number" id="pr-adults" value="1" min="0" oninput="calcPricing()"></div>
+    <div class="field"><label>Discounted Adult Members</label><input type="number" id="pr-disc" value="0" min="0" oninput="calcPricing()"></div>
+    <div class="field"><label>Kids Members</label><input type="number" id="pr-kids" value="0" min="0" oninput="calcPricing()"></div>
+  </div>
+  <div class="calc-summary">
+    <div class="calc-stat">
+      <div class="calc-stat-label">Monthly Quote</div>
+      <div class="calc-stat-value" id="pr-quote-now">--</div>
+      <div class="calc-stat-note" id="pr-quote-note">Monthly total for this household</div>
+    </div>
+  </div>
+  <div class="calc-breakdown">
+    <div class="calc-box">
+      <div class="calc-box-title">Breakdown</div>
+      <div class="calc-list" id="pr-breakdown"></div>
+    </div>
+    <div class="calc-box">
+      <div class="calc-box-title">What To Say</div>
+      <div class="quick-answer-body" id="pr-script">Start with the household mix above.</div>
+      <div class="out-actions">
+        <button class="btn btn-ghost" type="button" onclick="generatePricingScript()">Copy Script</button>
+      </div>
+    </div>
+  </div>
+  <div class="quick-answer">
+    <div class="quick-answer-title">If They Ask About Upfront Options</div>
+    <div class="compact-line" id="pr-options"></div>
+  </div>
+</div>
+
+<!-- OBJECTION HANDLER -->
+<div id="panel-objection" class="panel">
+  <div class="panel-title">Quick Scripts</div>
+  <div class="panel-sub">Short answers for common concerns. Updates instantly.</div>
+  <div class="field" style="margin-bottom:12px"><label>Main Objection</label>
+    <select id="obj-type" onchange="generateObjection()">
+      <option value="cost">Cost / pricing</option>
+      <option value="commitment">Commitment / contract length</option>
+      <option value="time">Schedule / time availability</option>
+      <option value="unsure">Not sure if it is right for them</option>
+      <option value="comparing">Comparing other gyms</option>
+      <option value="yearly">Hesitant about the yearly contract specifically</option>
+      <option value="other">Other (described below)</option>
+    </select>
+  </div>
+  <div class="field" style="margin-bottom:12px"><label>Context (optional)</label><textarea id="obj-situation" placeholder="e.g. Parent of a 10-year-old, worried about cost and time..." style="min-height:72px" oninput="generateObjection()"></textarea></div>
+  <div id="output-objection" class="out-box" style="display:none"></div>
+  <div id="actions-objection" class="out-actions" style="display:none">
+    <button class="btn btn-ghost" onclick="copyOut('objection')">Copy</button>
+  </div>
+</div>
+
+<!-- DROP-IN / VISITOR -->
+<div id="panel-dropin" class="panel">
+  <div class="panel-title">Drop-in / Visitor Pricing</div>
+  <div class="panel-sub">Reference rates for drop-ins and long-term visitors.</div>
+  <table class="price-table">
+    <thead><tr><th>Type</th><th>Rate</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Single Drop-in</td><td class="hl">$30/day</td><td>Unlimited training for the day</td></tr>
+      <tr><td>One Week</td><td class="hl">$75</td><td>Long-term visitor</td></tr>
+      <tr><td>Two Weeks</td><td class="hl">$100</td><td>Long-term visitor</td></tr>
+      <tr><td>Three Weeks</td><td class="hl">$150</td><td>Long-term visitor</td></tr>
+      <tr><td>Four Weeks</td><td class="hl">$160</td><td>Same as one month membership</td></tr>
+    </tbody>
+  </table>
+  <div class="divider"></div>
+  <div class="info-card"><strong>Payment Methods:</strong> Credit card (CC form), Debit (EFT form), Venmo (Synthesis-BJJ, last 4: 4184), Cash or Check (cash box)</div>
+  <div class="divider"></div>
+  <div class="form-grid">
+    <div class="field"><label>Visitor Name</label><input id="di-name" placeholder="e.g. John"></div>
+    <div class="field"><label>Duration</label>
+      <select id="di-duration">
+        <option value="single">Single day -- $30</option>
+        <option value="week1">One week -- $75</option>
+        <option value="week2">Two weeks -- $100</option>
+        <option value="week3">Three weeks -- $150</option>
+        <option value="week4">Four weeks -- $160</option>
+      </select>
+    </div>
+  </div>
+  <button class="btn" onclick="generateDropinEmail()">Draft Drop-in Confirmation</button>
+  <div id="output-dropin" class="out-box" style="display:none"></div>
+  <div id="actions-dropin" class="out-actions" style="display:none">
+    <button class="btn btn-ghost" onclick="copyOut('dropin')">Copy Email</button>
+    <button class="btn btn-ghost" onclick="generateSMS('dropin','sms-dropin')">Draft SMS</button>
+  </div>
+  <div class="sms-section" id="sms-section-dropin" style="display:none">
+    <div class="sms-label">SMS Draft</div>
+    <div id="output-sms-dropin" class="out-box sms-box"></div>
+    <div class="out-actions">
+      <button class="btn btn-ghost" onclick="copyOut('sms-dropin')">Copy SMS</button>
+      <span class="sms-char-count" id="sms-chars-dropin"></span>
+    </div>
+  </div>
+</div>
+
+<!-- SCHEDULE -->
+<div id="panel-schedule" class="panel">
+  <div class="panel-title">Class Schedule</div>
+  <div class="panel-sub">Current weekly schedule. Nearly 50 classes per week.</div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;font-size:11px;">
+    <span style="display:flex;align-items:center;gap:4px;color:var(--muted)"><span style="width:8px;height:8px;background:var(--cyan);border-radius:1px;display:inline-block"></span>Kids</span>
+    <span style="display:flex;align-items:center;gap:4px;color:var(--muted)"><span style="width:8px;height:8px;background:#e74c3c;border-radius:1px;display:inline-block"></span>MMA</span>
+    <span style="display:flex;align-items:center;gap:4px;color:var(--muted)"><span style="width:8px;height:8px;background:var(--warn);border-radius:1px;display:inline-block"></span>Wrestling</span>
+    <span style="display:flex;align-items:center;gap:4px;color:var(--muted)"><span style="width:8px;height:8px;background:#a855f7;border-radius:1px;display:inline-block"></span>Striking</span>
+    <span style="display:flex;align-items:center;gap:4px;color:var(--muted)"><span style="width:8px;height:8px;background:var(--success);border-radius:1px;display:inline-block"></span>Open</span>
+  </div>
+  <div class="sched-grid" id="schedule-grid"></div>
+</div>
+
+<!-- SETTINGS -->
+<div id="panel-settings" class="panel">
+  <div class="panel-title">API Key</div>
+  <div class="panel-sub">Your Anthropic API key. Stored only in this browser's localStorage.</div>
+  <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:16px;">
+    <div class="field" style="flex:1"><label>Anthropic API Key</label><input type="password" id="api-key-input" placeholder="sk-ant-..."></div>
+    <button class="btn" style="margin-top:0;padding:9px 18px" onclick="saveApiKey()">Save</button>
+  </div>
+  <p style="font-size:12px;color:var(--muted);line-height:1.7">Stored in localStorage on this browser only. Never transmitted except directly to Anthropic's API. Clear browser data to remove.</p>
+  <div id="key-status" style="margin-top:10px;font-size:12px;"></div>
+</div>
+
+</main>
+</div>
+<script>
+const SYSTEM_PROMPT = `You are the front desk operations assistant for Synthesis Brazilian Jiu-Jitsu (Synthesis BJJ) in Rochester, NY. Owned by Casey and Lauren Lamb, world champions and coaches with 30+ years in martial arts. RMNU affiliate.
+
+BRAND VOICE: Natural, human, not salesy. Clear and confident, not pushy. Welcoming to beginners and parents. No em dashes ever. No hype or pressure. Sign off: Charlie, Synthesis BJJ, (585) 256-1548.
+
+FACILITY: 11,000 sq ft, 5,000+ sq ft mat space. ~50 classes/week. 1225 Jefferson Rd A201, Rochester NY 14623. Located in Frontier Plaza above Bryant and Stratton College.
+
+CORE OFFERING: Unlimited access. Gi, No-Gi, Wrestling, MMA, Striking. Morning, evening, weekend. Bag stations and cardio equipment. One price, no tiers, no hidden fees.
+
+PRICING:
+Adults monthly: $160 general | $150 discounted
+Kids monthly: $120
+Discounted rate: LEOs, first responders, public health workers, veterans, college students, high schoolers (parent signature + permission to participate required)
+Family: $10 off each additional household member, max $425/month, same household only
+
+3-MONTH UPFRONT (adult only): $480 general | $450 discounted. Includes free gi OR rash guard + fight shorts (their choice). Yearly contract, standard opt outs apply.
+
+ADULT YEARLY CONTRACT: $1,700 general | $1,500 discounted. Includes free gi OR rash guard + fight shorts. Yearly contract. Early termination is a 2-month buyout at undiscounted rate ($320 general / $300 discounted). Cancellation exceptions may apply for medical reasons or relocation 25+ miles. Never quote penalties unprompted. Defer to ownership if raised.
+
+KIDS YEARLY: $2,300 for two kids. 2-month buyout ($240). Standard opt outs apply.
+FAMILY YEARLY CAP: $5,100/year.
+
+TRIAL: Free 7-day, full access. PIN entered on small iPad at front desk activates trial. Walk in anytime, no appointment. Kicksite may send payment request — always tell members to ignore during trial.
+
+DROP-INS: $30/day. Long-term: 1wk $75 | 2wk $100 | 3wk $150 | 4wk $160.
+
+BILLING: Platform Kicksite. Venmo: Synthesis-BJJ last 4 4184. Cash/Check: cash box. CC: CC form. Debit: EFT form. Kicksite emails may go to spam.
+
+KIDS PROGRAM: Mon-Thu 5-6pm. Mon=No-Gi (tee+shorts). Tue-Thu=Gi (loaner provided, washer/dryer on site).
+
+SCHEDULE HIGHLIGHTS: 6am classes Mon-Thu. Kids 5pm Mon-Thu. Evening classes to 8:15pm Mon. MMA Sparring open to public Mon 8:15pm. Sat: Wrestling 9am, GI Fundamentals 10am, MMA Sparring 10:30am. Sun: No-Gi 9am, Open Mat 5pm.
+
+EMAIL RULES: Friendly but direct. No fluff, no corporate tone. No em dashes. Include schedule link (synthesisbjj.com/schedule) only when helpful. Never pressure or create false urgency.`;
+
+const SCHED = {
+  Monday:[
+    {n:'No-Gi',t:'6:00am'},{n:'No-Gi',t:'11:00am'},
+    {n:'Kids No-Gi',t:'5:00pm',c:'kids'},{n:'GI Fundamentals',t:'5:00pm'},
+    {n:'GI',t:'6:15pm'},{n:'No-Gi',t:'6:15pm'},
+    {n:'Beginner Striking',t:'7:00pm',c:'striking'},
+    {n:'MMA Sparring (public)',t:'8:15pm',c:'mma'}
+  ],
+  Tuesday:[
+    {n:'GI',t:'6:00am'},{n:'Wrestling',t:'10:00am',c:'wrestling'},{n:'GI',t:'11:00am'},
+    {n:'Kids GI',t:'5:00pm',c:'kids'},{n:'GI',t:'5:00pm'},{n:'Striking',t:'5:00pm',c:'striking'},
+    {n:'MMA',t:'6:00pm',c:'mma'},{n:'GI Sparring',t:'6:00pm'},{n:'No-Gi',t:'6:00pm'}
+  ],
+  Wednesday:[
+    {n:'No-Gi',t:'6:00am'},{n:'No-Gi',t:'11:00am'},
+    {n:'Kids GI',t:'5:00pm',c:'kids'},{n:'GI Fundamentals',t:'5:00pm'},
+    {n:'Striking',t:'6:15pm',c:'striking'},{n:'GI',t:'6:15pm'},
+    {n:'No-Gi',t:'6:15pm'},{n:'MMA',t:'7:15pm',c:'mma'}
+  ],
+  Thursday:[
+    {n:'GI',t:'6:00am'},{n:'Wrestling',t:'10:00am',c:'wrestling'},{n:'GI',t:'11:00am'},
+    {n:'Kids GI',t:'5:00pm',c:'kids'},{n:'GI',t:'5:00pm'},{n:'Striking',t:'5:00pm',c:'striking'},
+    {n:'MMA',t:'6:00pm',c:'mma'},{n:'GI Sparring',t:'6:00pm'},{n:'No-Gi',t:'6:00pm'}
+  ],
+  Friday:[
+    {n:'No-Gi Positional',t:'6:00am'},{n:'No-Gi',t:'11:00am'},
+    {n:'GI Positional',t:'5:30pm'},{n:'No-Gi',t:'6:00pm'}
+  ],
+  Saturday:[
+    {n:'Wrestling',t:'9:00am',c:'wrestling'},{n:'GI Fundamentals',t:'10:00am'},
+    {n:'Mem. Free Roll',t:'10:00am',c:'open'},{n:'MMA Sparring',t:'10:30am',c:'mma'}
+  ],
+  Sunday:[{n:'No-Gi',t:'9:00am'},{n:'Open Mat',t:'5:00pm',c:'open'}]
+};
+
+function buildSchedule(){
+  const g=document.getElementById('schedule-grid');
+  ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].forEach(day=>{
+    const col=document.createElement('div');
+    col.innerHTML=`<div class="sched-day-hdr ${day==='Monday'?'mon':''}">${day.substring(0,3)}</div>`;
+    (SCHED[day]||[]).forEach(cls=>{
+      const d=document.createElement('div');
+      d.className=`sched-cls ${cls.c||''}`;
+      d.innerHTML=`<div class="cn">${cls.n}</div><div class="ct">${cls.t}</div>`;
+      col.appendChild(d);
+    });
+    g.appendChild(col);
+  });
+}
+
+function getKey(){return localStorage.getItem('sbjj_api_key')||'';}
+function saveApiKey(){
+  const k=document.getElementById('api-key-input').value.trim();
+  if(k){localStorage.setItem('sbjj_api_key',k);document.getElementById('key-status').innerHTML='<span style="color:var(--success)">Saved.</span>';}
+}
+function showPanel(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
+}
+function openPanel(id){
+  const btn=[...document.querySelectorAll('.nav-btn')].find(b=>b.getAttribute('onclick')===`showPanel('${id}',this)`);
+  showPanel(id,btn||null);
+}
+function v(id){const e=document.getElementById(id);return e?e.value.trim():'';}
+function chk(id){const e=document.getElementById(id);return e&&e.checked;}
+function fmtMoney(n){return '$'+n.toLocaleString();}
+
+function calcQuickPricing(){
+  const adults=parseInt(document.getElementById('qp-adults').value)||0;
+  const kids=parseInt(document.getElementById('qp-kids').value)||0;
+  const discounted=document.getElementById('qp-discount').checked;
+  const total=adults+kids;
+  const monthlyEl=document.getElementById('qp-monthly');
+  const yearlyEl=document.getElementById('qp-yearly');
+  const lineEl=document.getElementById('qp-line');
+
+  if(total===0){
+    monthlyEl.textContent='--';
+    yearlyEl.textContent='--';
+    lineEl.textContent='Add members to quote.';
+    return;
+  }
+
+  const adultRate=discounted?150:160;
+  const monthlyRates=[...Array(adults).fill(adultRate),...Array(kids).fill(120)].sort((a,b)=>b-a);
+  const baseMonthly=monthlyRates.reduce((sum,rate)=>sum+rate,0);
+  const monthly=Math.min(monthlyRates.reduce((sum,rate,index)=>sum+(index===0?rate:rate-10),0),425);
+
+  let yearlyText='Confirm';
+  if(adults===1&&kids===0){
+    yearlyText=fmtMoney(discounted?1500:1700);
+  } else if(adults===0){
+    yearlyText='N/A';
+  }
+
+  const parts=[
+    adults?`${adults} adult${adults===1?'':'s'}`:'',
+    kids?`${kids} kid${kids===1?'':'s'}`:''
+  ].filter(Boolean).join(' and ');
+  const savings=baseMonthly-monthly;
+  const savingsText=savings>0?` Family discount included.`:'';
+
+  monthlyEl.textContent=fmtMoney(monthly);
+  yearlyEl.textContent=yearlyText;
+  const yearlyNote=adults===1&&kids===0?` Yearly option is ${yearlyText}.`:'';
+  lineEl.textContent=`It would be ${fmtMoney(monthly)} per month for ${parts}.${savingsText}${yearlyNote}`;
+}
+
+function discGroups(pre){
+  const g=[];
+  if(chk(pre+'-military'))g.push('military/veteran');
+  if(chk(pre+'-leo'))g.push('LEO/first responder');
+  if(chk(pre+'-health'))g.push('public health worker');
+  if(chk(pre+'-college'))g.push('college student');
+  if(chk(pre+'-hs'))g.push('high schooler (parent signature on file)');
+  return g;
+}
+
+async function callClaude(prompt,outId,actId){
+  const key=getKey();
+  if(!key){alert('Set your API key in Settings first.');showPanel('settings',null);return;}
+  const box=document.getElementById('output-'+outId);
+  const act=actId?document.getElementById('actions-'+actId):null;
+  box.style.display='block';box.className='out-box loading';
+  box.textContent='';
+  const sp=document.createElement('span');sp.className='spinner';
+  box.appendChild(sp);box.appendChild(document.createTextNode(' Generating...'));
+  if(act)act.style.display='none';
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':key,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1024,stream:true,system:SYSTEM_PROMPT,messages:[{role:'user',content:prompt}]})
+    });
+    if(!r.ok){const err=await r.json();throw new Error(err.error?.message||'API error '+r.status);}
+    box.className='out-box';box.textContent='';
+    const reader=r.body.getReader();const dec=new TextDecoder();let buf='';
+    while(true){
+      const{done,value}=await reader.read();
+      if(done)break;
+      buf+=dec.decode(value,{stream:true});
+      const lines=buf.split('\n');buf=lines.pop();
+      for(const line of lines){
+        if(!line.startsWith('data: '))continue;
+        const data=line.slice(6).trim();
+        if(data==='[DONE]')continue;
+        try{const j=JSON.parse(data);if(j.type==='content_block_delta'&&j.delta?.type==='text_delta')box.textContent+=j.delta.text;}catch{}
+      }
+    }
+    if(act)act.style.display='flex';
+  }catch(e){box.className='out-box';box.textContent='Error: '+e.message;}
+}
+
+function copyOut(id){
+  const b=document.getElementById('output-'+id);
+  if(!b||!b.textContent.trim())return;
+  navigator.clipboard.writeText(b.textContent).then(()=>{
+    const t=document.getElementById('copy-toast');
+    t.classList.add('show');
+    clearTimeout(t._tid);
+    t._tid=setTimeout(()=>t.classList.remove('show'),1800);
+  });
+}
+
+async function generateSMS(emailOutId,smsOutId){
+  const emailBox=document.getElementById('output-'+emailOutId);
+  if(!emailBox||!emailBox.textContent.trim()||emailBox.classList.contains('loading')){
+    alert('Generate the email first, then draft an SMS from it.');return;
+  }
+  const suffix=smsOutId.replace('sms-','');
+  const section=document.getElementById('sms-section-'+suffix);
+  if(section)section.style.display='block';
+  const smsBox=document.getElementById('output-'+smsOutId);
+  smsBox.style.display='block';
+  const charSpan=document.getElementById('sms-chars-'+suffix);
+  const prompt=`Based on this email, write one SMS text message. Requirements: under 160 characters total, plain text, one or two short sentences, no paragraphs, conversational tone, include only the most critical info. Return only the SMS text, nothing else.\n\nEmail:\n${emailBox.textContent}`;
+  await callClaude(prompt,smsOutId,null);
+  if(charSpan&&smsBox.textContent){
+    const len=smsBox.textContent.length;
+    charSpan.textContent=len+' / 160 chars';
+    charSpan.className='sms-char-count'+(len>160?' over':'');
+  }
+}
+
+function generateEmail(type){
+  let prompt='';
+  if(type==='adult-trial'){
+    const disc=discGroups('at');
+    prompt=`Write a welcome email for a new adult trial member.
+Name: ${v('at-name')||'[Name]'} | Trial PIN: ${v('at-pin')||'[PIN]'}
+Kicksite request sent: ${v('at-kicksite')==='yes'?'Yes, tell them to ignore it':'No, skip it'}
+${disc.length?`Discount eligibility: ${disc.join(', ')}. Mention $150/month discounted rate.`:'No known discount. Present $160/month and ask if they qualify for any discount groups.'}
+${v('at-notes')?'Context: '+v('at-notes'):''}
+Include PIN check-in on small iPad at front desk, full trial access, lightly pitch 3-month deal ($480 general/$450 discounted + free gi or rash guard and fight shorts on yearly contract with standard opt outs). No em dashes.`;
+  }
+  else if(type==='adult-member'){
+    const disc=discGroups('am');
+    const pay=v('am-payment');
+    prompt=`Write a welcome email for a new adult member who has signed up.
+Name: ${v('am-name')||'[Name]'} | PIN: ${v('am-pin')||'[PIN]'}
+Monthly rate: $${v('am-rate')}/month${disc.length?' ('+disc.join(', ')+' discount)':''}
+${v('am-billdate')?'Bill date: '+v('am-billdate'):''}
+Payment method: ${pay}${pay==='venmo'?' — Venmo is accepted, mention Kicksite request may still arrive':''}
+${v('am-pitch3mo')==='light'?'Lightly pitch 3-month upfront: $480 general/$450 discounted + free gi or rash guard and fight shorts, yearly contract, standard opt outs.':'Do not pitch the 3-month deal.'}
+${v('am-notes')?'Context: '+v('am-notes'):''}
+No em dashes. Warm but direct.`;
+  }
+  else if(type==='adult-yearly'){
+    const rate=v('ay-rate');
+    const gear=v('ay-gear');
+    const dg=v('ay-discount-group');
+    const buyout=rate==='1700'?'$320':'$300';
+    prompt=`Write a welcome email for a new adult member who has committed to a yearly contract.
+Name: ${v('ay-name')||'[Name]'} | PIN: ${v('ay-pin')||'[PIN]'}
+Yearly rate: $${rate} upfront${dg!=='none'?' ('+dg+' discount)':''}
+Effective monthly rate: $${Math.round(parseInt(rate)/12)}/month
+${gear==='ask'?'Gear: They have not yet chosen. Let them know they can pick a free gi OR rash guard + fight shorts, their choice.':gear==='gi'?'Gear: Gi selected.':'Gear: Rash guard + fight shorts selected.'}
+${v('ay-billdate')?'Start/bill date: '+v('ay-billdate'):''}
+Early termination is a 2-month buyout at undiscounted rate (${buyout}). Cancellation exceptions may apply for medical reasons or relocation 25+ miles. Mention exceptions calmly and tell them we can confirm with ownership if needed.
+${v('ay-notes')?'Context: '+v('ay-notes'):''}
+Tone: warm, congratulatory, make them feel good about the commitment. No em dashes.`;
+  }
+  else if(type==='kids-trial'){
+    prompt=`Write a welcome email to a parent for their child's 7-day kids BJJ trial.
+Parent: ${v('kt-parent')||'[Parent]'} | Child: ${v('kt-child')||'[Child]'}
+Trial PIN: ${v('kt-pin')||'[PIN]'}
+${v('kt-notes')?'Context: '+v('kt-notes'):''}
+Include: PIN on small iPad at front desk, kids schedule Mon-Thu 5-6pm, Monday No-Gi (tee+shorts fine), Tue-Thu Gi (loaner provided, washer/dryer on site), ignore Kicksite payment request, $120/month after trial, schedule link synthesisbjj.com/schedule. Warm, no pressure, no em dashes.`;
+  }
+  else if(type==='inquiry'){
+    const inc=[];
+    if(chk('inq-adult'))inc.push('adult pricing ($160 general / $150 discounted for LEOs, public health, veterans, first responders, college students, high schoolers with parent signature)');
+    if(chk('inq-kids'))inc.push('kids program ($120/month, Mon-Thu 5-6pm, loaner gi available)');
+    if(chk('inq-family'))inc.push('family discount ($10 off each additional member, max $425/month)');
+    if(chk('inq-trial'))inc.push('free 7-day trial as the lowest friction next step');
+    if(chk('inq-3mo'))inc.push('3-month upfront deal ($480/$450 + free gi or rash guard and fight shorts, yearly contract, standard opt outs)');
+    if(chk('inq-yearly'))inc.push('yearly contract ($1,700 general / $1,500 discounted + free gi or rash guard and fight shorts, standard opt outs)');
+    if(chk('inq-schedule'))inc.push('schedule link: synthesisbjj.com/schedule');
+    prompt=`Write a program inquiry response.
+Prospect: ${v('inq-name')||'[Name]'}
+Their inquiry: ${v('inq-message')||'General inquiry about programs and pricing'}
+Include: ${inc.join(', ')}
+Warm, informative, no pressure. No em dashes.`;
+  }
+  else if(type==='payment'){
+    const opts=[];
+    if(chk('pay-kicksite'))opts.push('Kicksite payment link (check spam)');
+    if(chk('pay-venmo'))opts.push('Venmo (Synthesis-BJJ, last 4: 4184)');
+    if(chk('pay-billdate'))opts.push('offer to move billing date');
+    if(chk('pay-discount'))opts.push('ask if they qualify for a discounted rate');
+    prompt=`Write a polite payment follow-up email.
+Member: ${v('pay-name')||'[Name]'}
+Situation: ${v('pay-situation')||'Payment method issue'}
+Options to offer: ${opts.join(', ')}
+Understanding, helpful, not aggressive. Easy for them to resolve. No em dashes.`;
+  }
+
+  const map={'adult-trial':'email-trial-adult','adult-member':'email-member-adult','adult-yearly':'email-yearly-adult','kids-trial':'email-trial-kids','inquiry':'email-inquiry','payment':'email-payment'};
+  callClaude(prompt,map[type],map[type]);
+}
+
+function calcPricing(){
+  const ga=parseInt(document.getElementById('pr-adults').value)||0;
+  const da=parseInt(document.getElementById('pr-disc').value)||0;
+  const k=parseInt(document.getElementById('pr-kids').value)||0;
+  const total=ga+da+k;
+  const fmt=n=>'$'+n.toLocaleString();
+  if(total===0){
+    document.getElementById('pr-quote-now').textContent='--';
+    document.getElementById('pr-quote-note').textContent='Monthly total for this household';
+    document.getElementById('pr-breakdown').innerHTML='<div><span>No members added yet</span><span>--</span></div>';
+    document.getElementById('pr-script').textContent='Start with the household mix above.';
+    document.getElementById('pr-options').textContent='Adult-only quotes: 3 months is $480 general or $450 discounted. Single adult yearly is $1,700 general or $1,500 discounted.';
+    document.getElementById('home-price-summary').innerHTML='<strong>Adults $160. Discounted adults $150. Kids $120.</strong>\nUse the Pricing Builder for family totals.';
+    return;
+  }
+  // Monthly: sort rates desc, $10 off each additional member, hard cap $425
+  const mRates=[...Array(ga).fill(160),...Array(da).fill(150),...Array(k).fill(120)].sort((a,b)=>b-a);
+  const baseMonthly=mRates.reduce((s,r)=>s+r,0);
+  const monthly=Math.min(mRates.reduce((s,r,i)=>s+(i===0?r:r-10),0),425);
+  // 3-month upfront (adults only): $30 off per additional adult ($10/mo * 3)
+  const aRates=[...Array(ga).fill(480),...Array(da).fill(450)].sort((a,b)=>b-a);
+  const m3=aRates.length?Math.min(aRates.reduce((s,r,i)=>s+(i===0?r:r-30),0),425*3):null;
+  document.getElementById('pr-quote-now').textContent=fmt(monthly);
+  document.getElementById('pr-quote-note').textContent=total===1?'Single member monthly rate':'Family discount already applied';
+
+  const breakdown=[
+    ga?`General adults (${ga})|${fmt(ga*160)}`:'',
+    da?`Discounted adults (${da})|${fmt(da*150)}`:'',
+    k?`Kids (${k})|${fmt(k*120)}`:'',
+    total>1&&baseMonthly>monthly?`Discounts applied|${fmt(baseMonthly-monthly)}`:'',
+    monthly===425&&baseMonthly>425?`Monthly cap applied|${fmt(425)}`:''
+  ].filter(Boolean).map(row=>{
+    const [left,right]=row.split('|');
+    return `<div><span>${left}</span><span>${right}</span></div>`;
+  }).join('');
+  document.getElementById('pr-breakdown').innerHTML=breakdown;
+
+  const householdLabel=[
+    ga?`${ga} general adult${ga===1?'':'s'}`:'',
+    da?`${da} discounted adult${da===1?'':'s'}`:'',
+    k?`${k} kid${k===1?'':'s'}`:''
+  ].filter(Boolean).join(', ');
+  const intro=total===1?'It would be':'For that household, it would be';
+  const extra=total>1?` That already includes the family discount.`:'';
+  const contractLine=m3!==null?` If they ask about upfront options, 3 months is ${fmt(m3)}.`:'';
+  document.getElementById('pr-script').textContent=`${intro} ${fmt(monthly)} per month for ${householdLabel}.${extra}${contractLine}`;
+  if(total===1&&ga===1){
+    document.getElementById('pr-options').textContent=`3 months: ${m3!==null?fmt(m3):'N/A'}. Yearly: ${fmt(1700)}.`;
+  } else if(total===1&&da===1){
+    document.getElementById('pr-options').textContent=`3 months: ${m3!==null?fmt(m3):'N/A'}. Yearly: ${fmt(1500)}.`;
+  } else if(aRates.length>0){
+    document.getElementById('pr-options').textContent=`3 months: ${m3!==null?fmt(m3):'N/A'}. For yearly on mixed or multi-member households, confirm before quoting.`;
+  } else {
+    document.getElementById('pr-options').textContent='Use the monthly quote above. Confirm any yearly option before quoting.';
+  }
+  document.getElementById('home-price-summary').innerHTML=`<strong>${fmt(monthly)}/month</strong>\n${householdLabel.charAt(0).toUpperCase()+householdLabel.slice(1)}.${total>1?' Family discount included.':''}`;
+}
+
+function generatePricingScript(){
+  const text=document.getElementById('pr-script').textContent.trim();
+  navigator.clipboard.writeText(text).then(()=>{
+    const t=document.getElementById('copy-toast');
+    t.classList.add('show');
+    clearTimeout(t._tid);
+    t._tid=setTimeout(()=>t.classList.remove('show'),1800);
+  }).catch(()=>{});
+}
+
+function generateObjection(){
+  const context=v('obj-situation');
+  const scripts={
+    cost:{
+      say:'For adults it is $160 a month, or $150 if they qualify for the discounted rate. If more than one family member is training, we also take $10 off each additional member.',
+      next:'Quote the exact monthly total and stop there unless they ask for more.'
+    },
+    commitment:{
+      say:'The easiest next step is the free 7-day trial so they can see if it fits before making a decision.',
+      next:'Offer the trial instead of explaining contract details first.'
+    },
+    time:{
+      say:'We have morning, evening, and weekend classes, so most people can get started without needing a perfect schedule.',
+      next:'Give one or two relevant class times, not the full schedule.'
+    },
+    unsure:{
+      say:'That is exactly why the free 7-day trial helps. They can try classes, meet the coaches, and see how it feels without pressure.',
+      next:'Keep the next step small and easy.'
+    },
+    comparing:{
+      say:'That makes sense. What usually stands out here is the coaching, the schedule variety, and that members get full access instead of tiers or add-ons.',
+      next:'Keep it positive. Do not compare gym-to-gym in detail.'
+    },
+    yearly:{
+      say:'No problem. Monthly is still a solid option, and they can always switch later if they decide the yearly plan makes sense for them.',
+      next:'Stay on monthly unless they ask to compare options.'
+    },
+    other:{
+      say:'The best move is to keep it simple, answer the exact concern, and offer the free trial as the lowest-pressure next step.',
+      next:'Use one answer and one next step.'
+    }
+  };
+  const item=scripts[v('obj-type')]||scripts.other;
+  const detail=context?`\n\nContext:\n${context}`:'';
+  const text=`Say this:\n"${item.say}"\n\nNext move:\n${item.next}${detail}`;
+  const box=document.getElementById('output-objection');
+  const act=document.getElementById('actions-objection');
+  box.style.display='block';
+  box.className='out-box';
+  box.textContent=text;
+  act.style.display='flex';
+}
+
+function generateDropinEmail(){
+  const dur={single:'single day ($30)',week1:'one week ($75)',week2:'two weeks ($100)',week3:'three weeks ($150)',week4:'four weeks ($160)'};
+  const prompt=`Write a short friendly confirmation for a drop-in or visiting member.
+Name: ${v('di-name')||'[Name]'}
+Duration: ${dur[v('di-duration')]}
+Mention they have full access during their visit and payment options: Kicksite, Venmo (Synthesis-BJJ last 4: 4184), or cash. No em dashes.`;
+  callClaude(prompt,'dropin','dropin');
+}
+
+// Auto-link: discount checkboxes → rate dropdown (Adult Membership)
+function syncAmRate(){
+  const any=['am-military','am-leo','am-health','am-college','am-hs'].some(id=>document.getElementById(id).checked);
+  document.getElementById('am-rate').value=any?'150':'160';
+}
+// Auto-link: discount group → rate (Adult Yearly)
+function syncAyRate(){
+  const dg=document.getElementById('ay-discount-group').value;
+  document.getElementById('ay-rate').value=(dg!=='none')?'1500':'1700';
+}
+// Inquiry presets: one click sets the right checkboxes
+function setInqPreset(mode){
+  const ids=['inq-adult','inq-kids','inq-family','inq-trial','inq-3mo','inq-yearly','inq-schedule'];
+  const presets={
+    adult:  ['inq-adult','inq-trial','inq-schedule'],
+    kids:   ['inq-kids','inq-trial','inq-schedule'],
+    family: ['inq-adult','inq-kids','inq-family','inq-trial','inq-schedule'],
+    all:    ids
+  };
+  const on=new Set(presets[mode]||[]);
+  ids.forEach(id=>{document.getElementById(id).checked=on.has(id);});
+}
+
+window.addEventListener('load',()=>{
+  const k=getKey();
+  if(k){document.getElementById('api-key-input').value=k;document.getElementById('key-status').innerHTML='<span style="color:var(--success)">Key loaded.</span>';}
+  calcQuickPricing();
+  buildSchedule();
+  calcPricing();
+  generateObjection();
+});
+</script>
+<div id="copy-toast" class="copy-toast">Copied</div>
+</body>
+</html>
