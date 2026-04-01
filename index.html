@@ -1067,22 +1067,33 @@ function escapeHtml(text){
 function buildAdultTrialEmail(){
   const name=v('at-name')||'there';
   const pin=v('at-pin')||'[PIN]';
-  const discountAsked=discGroups('at');
-  const discountLine=discountAsked.length
-    ? `You may qualify for our discounted adult rate of $150/month based on ${discountAsked.join(', ')}.`
-    : `Adult membership is $160/month. If you think you may qualify for a discounted rate, just ask and we can check.`;
+  const disc=discGroups('at');
+  const priceLine=disc.length
+    ? `After the trial, membership is $150/month. We offer that rate for ${disc.join(', ')}.`
+    : 'After the trial, membership is $160/month.';
+  const pitch3=v('am-pitch3mo')!=='no'
+    ? 'If you want to lock in a better rate, we have a 3-month upfront option: $480 general or $450 discounted. It includes a free gi or rashguard and fight shorts, and runs on a 12-month contract with standard opt-outs for relocation, work changes, or health -- just reach out before your next bill date.'
+    : '';
   return joinLines([
-    'Subject: Your Synthesis BJJ Trial',
+    'Subject: Welcome to Synthesis BJJ -- Your Trial Starts Now',
     '',
     `Hi ${name},`,
     '',
-    'You can start your free 7-day trial any time.',
-    `When you come in, check in on the small iPad at the front desk and use PIN ${pin}.`,
-    v('at-kicksite')==='yes' ? 'If Kicksite sends a payment request during the trial, please ignore it.' : '',
-    discountLine,
-    v('at-notes') || '',
+    'You are all set for your free 7-day trial at Synthesis BJJ.',
     '',
-    'See you soon,',
+    `When you come in, use PIN ${pin} on the small iPad at the front desk to check in. You have full access during your trial -- Gi, No-Gi, Wrestling, MMA, Striking, bag stations, and cardio equipment. Come to as many classes as you want.`,
+    '',
+    v('at-kicksite')==='yes' ? 'If Kicksite sends you a payment request, please ignore it. That is automatic and does not apply during your trial.' : '',
+    '',
+    priceLine,
+    '',
+    pitch3,
+    pitch3 ? '' : '',
+    'If you have family members who want to train, we take $10 off each additional household member with a $425/month household max.',
+    v('at-notes') ? '\n'+v('at-notes') : '',
+    '',
+    'See you on the mats.',
+    '',
     'Charlie',
     'Synthesis BJJ',
     '(585) 256-1548'
@@ -1147,19 +1158,26 @@ function buildKidsTrialEmail(){
   const child=v('kt-child')||'your child';
   const pin=v('kt-pin')||'[PIN]';
   return joinLines([
-    "Subject: Your Child's Synthesis BJJ Trial",
+    `Subject: Welcome to Synthesis BJJ -- ${child}'s Trial Info`,
     '',
     `Hi ${parent},`,
     '',
-    `${child} is all set for the free 7-day trial.`,
-    `When you come in, just check in on the small iPad at the front desk and use PIN ${pin}.`,
-    'Kids classes run Monday through Thursday from 5:00 to 6:00.',
-    'Monday is No-Gi. Tuesday through Thursday is Gi, and we have loaner gis available.',
-    'If Kicksite sends a payment request during the trial, please ignore it.',
-    'Kids membership is $120/month after the trial.',
-    v('kt-notes') || '',
+    `${child} is all set for the free 7-day trial. Here is what you need to know before the first class.`,
     '',
-    'See you soon,',
+    `Check-in: Use PIN ${pin} on the small iPad at the front desk each visit.`,
+    '',
+    'Schedule: Kids classes run Monday through Thursday, 5:00 to 6:00pm.',
+    '',
+    'Monday is No-Gi -- a t-shirt and shorts are fine.',
+    'Tuesday through Thursday is Gi -- we have loaner gis available during the trial, and there is a washer and dryer on site if you need them.',
+    '',
+    'If Kicksite sends a payment request, please ignore it. That is automatic and does not apply during the trial.',
+    '',
+    'After the trial, kids membership is $120/month. If you have other family members who train or want to start, we take $10 off each additional household member with a $425/month household max.',
+    v('kt-notes') ? '\n'+v('kt-notes') : '',
+    '',
+    `Feel free to reach out with any questions. Looking forward to seeing ${child} on the mats.`,
+    '',
     'Charlie',
     'Synthesis BJJ',
     '(585) 256-1548'
