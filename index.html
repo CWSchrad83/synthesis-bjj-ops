@@ -322,6 +322,7 @@ textarea { resize:vertical; min-height:80px; }
   <button class="nav-btn" onclick="showPanel('email-member-adult',this)"><span class="nav-icon">✉</span> Adult Membership</button>
   <button class="nav-btn" onclick="showPanel('email-yearly-adult',this)"><span class="nav-icon">✉</span> Adult Yearly Contract</button>
   <button class="nav-btn" onclick="showPanel('email-trial-kids',this)"><span class="nav-icon">✉</span> Kids Trial</button>
+  <button class="nav-btn" onclick="showPanel('email-yearly-kids',this)"><span class="nav-icon">✉</span> Kids Yearly</button>
   <button class="nav-btn" onclick="showPanel('email-inquiry',this)"><span class="nav-icon">✉</span> Program Inquiry</button>
   <button class="nav-btn" onclick="showPanel('email-payment',this)"><span class="nav-icon">✉</span> Payment Follow-up</button>
   <div class="sidebar-label">Tools</div>
@@ -567,6 +568,45 @@ textarea { resize:vertical; min-height:80px; }
   </div>
 </div>
 
+<!-- KIDS YEARLY -->
+<div id="panel-email-yearly-kids" class="panel">
+  <div class="panel-title">Kids Yearly Email</div>
+  <div class="panel-sub">Yearly contract pricing for one or two kids.</div>
+  <div class="info-card">
+    <strong>1 kid:</strong> $1,200/year (~$100/mo) &nbsp;|&nbsp; <strong>2 kids:</strong> $2,300/year (~$96/mo each)<br>
+    Early termination: $120/child (e.g. 2 kids = $240). Opt-outs for relocation, work changes, health -- contact before next bill date.
+  </div>
+  <div class="form-grid">
+    <div class="field"><label>Parent / Guardian Name</label><input id="ky-parent" placeholder="e.g. Ashley"></div>
+    <div class="field"><label>Number of Kids</label>
+      <select id="ky-count">
+        <option value="1">1 kid -- $1,200/year</option>
+        <option value="2">2 kids -- $2,300/year</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-grid">
+    <div class="field"><label>Child Name(s)</label><input id="ky-children" placeholder="e.g. London, or London and Marcus"></div>
+    <div class="field"><label>Start Date (optional)</label><input id="ky-startdate" placeholder="e.g. May 1st"></div>
+  </div>
+  <div class="field" style="margin-bottom:12px"><label>Additional Notes</label><textarea id="ky-notes" placeholder="e.g. signed in person, converting from monthly..."></textarea></div>
+  <button class="btn" onclick="generateEmail('kids-yearly')">Generate Email</button>
+  <div id="output-email-yearly-kids" class="out-box" style="display:none"></div>
+  <div id="actions-email-yearly-kids" class="out-actions" style="display:none">
+    <button class="btn btn-ghost" onclick="copyOut('email-yearly-kids')">Copy Email</button>
+    <button class="btn btn-ghost" onclick="refineWithAI('kids-yearly')">Refine with AI</button>
+    <button class="btn btn-ghost" onclick="generateSMS('email-yearly-kids','sms-yearly-kids')">Draft SMS</button>
+  </div>
+  <div class="sms-section" id="sms-section-yearly-kids" style="display:none">
+    <div class="sms-label">SMS Draft</div>
+    <div id="output-sms-yearly-kids" class="out-box sms-box"></div>
+    <div class="out-actions">
+      <button class="btn btn-ghost" onclick="copyOut('sms-yearly-kids')">Copy SMS</button>
+      <span class="sms-char-count" id="sms-chars-yearly-kids"></span>
+    </div>
+  </div>
+</div>
+
 <!-- PROGRAM INQUIRY -->
 <div id="panel-email-inquiry" class="panel">
   <div class="panel-title">Program Inquiry Response</div>
@@ -804,7 +844,7 @@ Month-to-month is available. Do not volunteer discounts unless the member asks o
 
 ADULT YEARLY CONTRACT: $1,700 general | $1,500 discounted. Includes free gi OR rash guard + fight shorts. Yearly contract. Early termination is a 2-month buyout at undiscounted rate ($320 general / $300 discounted). Cancellation exceptions may apply for medical reasons or relocation 25+ miles. Never quote penalties unprompted. Defer to ownership if raised.
 
-KIDS YEARLY: $2,300 for two kids. 2-month buyout ($240). Standard opt outs apply.
+KIDS YEARLY: 1 kid $1,200/year (~$100/mo). 2 kids $2,300/year (~$96/mo each). Early termination: $120/child (2 kids = $240). Standard opt outs apply.
 FAMILY YEARLY CAP: $5,100/year.
 
 TRIAL: Free 7-day, full access. PIN entered on small iPad at front desk activates trial. Walk in anytime, no appointment. Kicksite may send payment request — always tell members to ignore during trial.
@@ -992,7 +1032,7 @@ function copyOut(id){
 }
 
 function refineWithAI(type){
-  const map={'adult-trial':'email-trial-adult','adult-member':'email-member-adult','adult-yearly':'email-yearly-adult','kids-trial':'email-trial-kids','inquiry':'email-inquiry','payment':'email-payment'};
+  const map={'adult-trial':'email-trial-adult','adult-member':'email-member-adult','adult-yearly':'email-yearly-adult','kids-trial':'email-trial-kids','kids-yearly':'email-yearly-kids','inquiry':'email-inquiry','payment':'email-payment'};
   const outId=map[type];
   if(!outId)return;
   const box=document.getElementById('output-'+outId);
@@ -1184,6 +1224,35 @@ function buildKidsTrialEmail(){
   ]);
 }
 
+function buildKidsYearlyEmail(){
+  const parent=v('ky-parent')||'there';
+  const count=v('ky-count')||'1';
+  const children=v('ky-children')||'your child';
+  const startDate=v('ky-startdate');
+  const rate=count==='2'?'$2,300/year':'$1,200/year';
+  const monthly=count==='2'?'~$96/month per child':'~$100/month';
+  const buyout=count==='2'?'$240 ($120 per child)':'$120';
+  return joinLines([
+    `Subject: Synthesis BJJ -- Kids Yearly Membership`,
+    '',
+    `Hi ${parent},`,
+    '',
+    `${children} ${count==='2'?'are':'is'} all set on the kids yearly membership at ${rate} (${monthly}).`,
+    startDate ? `Start date: ${startDate}.` : '',
+    '',
+    `If anything comes up and you need to cancel, the early termination is ${buyout}. The standard exceptions still apply for relocation, work changes, or health -- just reach out before the next bill date and we will take care of it.`,
+    '',
+    'If you want to try it first, the free 7-day trial is always available before committing.',
+    v('ky-notes') ? '\n'+v('ky-notes') : '',
+    '',
+    'Feel free to reach out with any questions.',
+    '',
+    'Charlie',
+    'Synthesis BJJ',
+    '(585) 256-1548'
+  ]);
+}
+
 function buildInquiryEmail(){
   const name=v('inq-name')||'there';
   const points=[];
@@ -1241,10 +1310,11 @@ function generateEmail(type){
     'adult-member':buildAdultMemberEmail,
     'adult-yearly':buildAdultYearlyEmail,
     'kids-trial':buildKidsTrialEmail,
+    'kids-yearly':buildKidsYearlyEmail,
     'inquiry':buildInquiryEmail,
     'payment':buildPaymentEmail
   };
-  const map={'adult-trial':'email-trial-adult','adult-member':'email-member-adult','adult-yearly':'email-yearly-adult','kids-trial':'email-trial-kids','inquiry':'email-inquiry','payment':'email-payment'};
+  const map={'adult-trial':'email-trial-adult','adult-member':'email-member-adult','adult-yearly':'email-yearly-adult','kids-trial':'email-trial-kids','kids-yearly':'email-yearly-kids','inquiry':'email-inquiry','payment':'email-payment'};
   const builder=builders[type];
   if(!builder)return;
   setLocalOutput(map[type],builder());
