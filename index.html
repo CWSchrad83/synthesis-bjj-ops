@@ -197,6 +197,9 @@ textarea { resize:vertical; min-height:80px; }
 .out-box { background:rgba(255,255,255,0.02); border:1px solid var(--navy-border); border-radius:5px; padding:18px; margin-top:16px; white-space:pre-wrap; font-size:13px; line-height:1.8; color:rgba(240,246,252,0.88); min-height:80px; }
 .out-box.loading { color:var(--muted); font-style:italic; }
 .out-actions { display:flex; gap:8px; margin-top:10px; }
+.output-part + .output-part { margin-top:12px; padding-top:12px; border-top:1px solid var(--navy-border); }
+.output-part-label { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+.output-part-body { white-space:pre-wrap; line-height:1.6; color:rgba(240,246,252,0.9); }
 
 .divider { height:1px; background:var(--navy-border); margin:18px 0; }
 
@@ -369,6 +372,10 @@ textarea { resize:vertical; min-height:80px; }
         <div class="script-copy">"You can start the free 7-day trial today. Just check in on the iPad."</div>
       </div>
       <div class="script-item">
+        <div class="script-head">Month To Month</div>
+        <div class="script-copy">"You can stay month to month. If you want to look at longer-term options, I can show those too."</div>
+      </div>
+      <div class="script-item">
         <div class="script-head">Family Pricing</div>
         <div class="script-copy">"It is $10 off each additional family member, with a $425 household max."</div>
       </div>
@@ -409,6 +416,7 @@ textarea { resize:vertical; min-height:80px; }
   <div id="output-email-trial-adult" class="out-box" style="display:none"></div>
   <div id="actions-email-trial-adult" class="out-actions" style="display:none">
     <button class="btn btn-ghost" onclick="copyOut('email-trial-adult')">Copy Email</button>
+    <button class="btn btn-ghost" onclick="refineWithAI('adult-trial')">Refine with AI</button>
     <button class="btn btn-ghost" onclick="generateSMS('email-trial-adult','sms-trial-adult')">Draft SMS</button>
   </div>
   <div class="sms-section" id="sms-section-trial-adult" style="display:none">
@@ -459,6 +467,7 @@ textarea { resize:vertical; min-height:80px; }
   <div id="output-email-member-adult" class="out-box" style="display:none"></div>
   <div id="actions-email-member-adult" class="out-actions" style="display:none">
     <button class="btn btn-ghost" onclick="copyOut('email-member-adult')">Copy Email</button>
+    <button class="btn btn-ghost" onclick="refineWithAI('adult-member')">Refine with AI</button>
     <button class="btn btn-ghost" onclick="generateSMS('email-member-adult','sms-member-adult')">Draft SMS</button>
   </div>
   <div class="sms-section" id="sms-section-member-adult" style="display:none">
@@ -515,6 +524,7 @@ textarea { resize:vertical; min-height:80px; }
   <div id="output-email-yearly-adult" class="out-box" style="display:none"></div>
   <div id="actions-email-yearly-adult" class="out-actions" style="display:none">
     <button class="btn btn-ghost" onclick="copyOut('email-yearly-adult')">Copy Email</button>
+    <button class="btn btn-ghost" onclick="refineWithAI('adult-yearly')">Refine with AI</button>
     <button class="btn btn-ghost" onclick="generateSMS('email-yearly-adult','sms-yearly-adult')">Draft SMS</button>
   </div>
   <div class="sms-section" id="sms-section-yearly-adult" style="display:none">
@@ -544,6 +554,7 @@ textarea { resize:vertical; min-height:80px; }
   <div id="output-email-trial-kids" class="out-box" style="display:none"></div>
   <div id="actions-email-trial-kids" class="out-actions" style="display:none">
     <button class="btn btn-ghost" onclick="copyOut('email-trial-kids')">Copy Email</button>
+    <button class="btn btn-ghost" onclick="refineWithAI('kids-trial')">Refine with AI</button>
     <button class="btn btn-ghost" onclick="generateSMS('email-trial-kids','sms-trial-kids')">Draft SMS</button>
   </div>
   <div class="sms-section" id="sms-section-trial-kids" style="display:none">
@@ -590,6 +601,7 @@ textarea { resize:vertical; min-height:80px; }
   <div id="output-email-inquiry" class="out-box" style="display:none"></div>
   <div id="actions-email-inquiry" class="out-actions" style="display:none">
     <button class="btn btn-ghost" onclick="copyOut('email-inquiry')">Copy Email</button>
+    <button class="btn btn-ghost" onclick="refineWithAI('inquiry')">Refine with AI</button>
     <button class="btn btn-ghost" onclick="generateSMS('email-inquiry','sms-inquiry')">Draft SMS</button>
   </div>
   <div class="sms-section" id="sms-section-inquiry" style="display:none">
@@ -624,6 +636,7 @@ textarea { resize:vertical; min-height:80px; }
   <div id="output-email-payment" class="out-box" style="display:none"></div>
   <div id="actions-email-payment" class="out-actions" style="display:none">
     <button class="btn btn-ghost" onclick="copyOut('email-payment')">Copy Email</button>
+    <button class="btn btn-ghost" onclick="refineWithAI('payment')">Refine with AI</button>
     <button class="btn btn-ghost" onclick="generateSMS('email-payment','sms-payment')">Draft SMS</button>
   </div>
   <div class="sms-section" id="sms-section-payment" style="display:none">
@@ -730,6 +743,7 @@ textarea { resize:vertical; min-height:80px; }
   <div id="output-dropin" class="out-box" style="display:none"></div>
   <div id="actions-dropin" class="out-actions" style="display:none">
     <button class="btn btn-ghost" onclick="copyOut('dropin')">Copy Email</button>
+    <button class="btn btn-ghost" onclick="refineDropinWithAI()">Refine with AI</button>
     <button class="btn btn-ghost" onclick="generateSMS('dropin','sms-dropin')">Draft SMS</button>
   </div>
   <div class="sms-section" id="sms-section-dropin" style="display:none">
@@ -784,6 +798,7 @@ Adults monthly: $160 general | $150 discounted
 Kids monthly: $120
 Discounted rate: LEOs, first responders, public health workers, veterans, college students, high schoolers (parent signature + permission to participate required)
 Family: $10 off each additional household member, max $425/month, same household only
+Month-to-month is available. Do not volunteer discounts unless the member asks or clearly qualifies and it is relevant.
 
 3-MONTH UPFRONT (adult only): $480 general | $450 discounted. Includes free gi OR rash guard + fight shorts (their choice). Yearly contract, standard opt outs apply.
 
@@ -966,13 +981,34 @@ async function callClaude(prompt,outId,actId){
 
 function copyOut(id){
   const b=document.getElementById('output-'+id);
-  if(!b||!b.textContent.trim())return;
-  navigator.clipboard.writeText(b.textContent).then(()=>{
+  const text=b?.dataset.fullText||b?.textContent||'';
+  if(!text.trim())return;
+  navigator.clipboard.writeText(text).then(()=>{
     const t=document.getElementById('copy-toast');
     t.classList.add('show');
     clearTimeout(t._tid);
     t._tid=setTimeout(()=>t.classList.remove('show'),1800);
   });
+}
+
+function refineWithAI(type){
+  const map={'adult-trial':'email-trial-adult','adult-member':'email-member-adult','adult-yearly':'email-yearly-adult','kids-trial':'email-trial-kids','inquiry':'email-inquiry','payment':'email-payment'};
+  const outId=map[type];
+  if(!outId)return;
+  const box=document.getElementById('output-'+outId);
+  const draft=box?.dataset.fullText||box?.textContent||'';
+  if(!draft.trim()){alert('Generate the template first.');return;}
+  const notes=type==='inquiry'?(v('inq-message')||''):'';
+  const prompt=`Here is a draft email for Synthesis BJJ. Rewrite it to sound more natural and human while keeping the same facts, length, and sign-off. Do not add information that is not in the draft. Do not use em dashes. Keep it short.${notes?'\n\nContext from the prospect: '+notes:''}\n\nDraft:\n${draft}`;
+  callClaude(prompt,outId,outId);
+}
+
+function refineDropinWithAI(){
+  const box=document.getElementById('output-dropin');
+  const draft=box?.dataset.fullText||box?.textContent||'';
+  if(!draft.trim()){alert('Generate the template first.');return;}
+  const prompt='Here is a draft email for Synthesis BJJ. Rewrite it to sound more natural and human while keeping the same facts, length, and sign-off. Do not add information that is not in the draft. Do not use em dashes. Keep it short.\n\nDraft:\n'+draft;
+  callClaude(prompt,'dropin','dropin');
 }
 
 async function generateSMS(emailOutId,smsOutId){
@@ -986,7 +1022,8 @@ async function generateSMS(emailOutId,smsOutId){
   const smsBox=document.getElementById('output-'+smsOutId);
   smsBox.style.display='block';
   const charSpan=document.getElementById('sms-chars-'+suffix);
-  const prompt=`Based on this email, write one SMS text message. Requirements: under 160 characters total, plain text, one or two short sentences, no paragraphs, conversational tone, include only the most critical info. Return only the SMS text, nothing else.\n\nEmail:\n${emailBox.textContent}`;
+  const emailText=emailBox.dataset.fullText||emailBox.textContent||'';
+  const prompt=`Based on this email, write one SMS text message. Requirements: under 160 characters total, plain text, one or two short sentences, no paragraphs, conversational tone, include only the most critical info. Return only the SMS text, nothing else.\n\nEmail:\n${emailText}`;
   await callClaude(prompt,smsOutId,null);
   if(charSpan&&smsBox.textContent){
     const len=smsBox.textContent.length;
@@ -995,81 +1032,204 @@ async function generateSMS(emailOutId,smsOutId){
   }
 }
 
-function generateEmail(type){
-  let prompt='';
-  if(type==='adult-trial'){
-    const disc=discGroups('at');
-    prompt=`Write a welcome email for a new adult trial member.
-Name: ${v('at-name')||'[Name]'} | Trial PIN: ${v('at-pin')||'[PIN]'}
-Kicksite request sent: ${v('at-kicksite')==='yes'?'Yes, tell them to ignore it':'No, skip it'}
-${disc.length?`Discount eligibility: ${disc.join(', ')}. Mention $150/month discounted rate.`:'No known discount. Present $160/month and ask if they qualify for any discount groups.'}
-${v('at-notes')?'Context: '+v('at-notes'):''}
-Include PIN check-in on small iPad at front desk, full trial access, lightly pitch 3-month deal ($480 general/$450 discounted + free gi or rash guard and fight shorts on yearly contract with standard opt outs). No em dashes.`;
+function setLocalOutput(id,text){
+  const box=document.getElementById('output-'+id);
+  const act=document.getElementById('actions-'+id);
+  const lines=text.trim().split('\n');
+  const first=lines[0]||'';
+  const hasSubject=first.startsWith('Subject:');
+  const subject=hasSubject?first.replace(/^Subject:\s*/,'').trim():'';
+  const body=(hasSubject?lines.slice(2):lines).join('\n').trim();
+  box.style.display='block';
+  box.className='out-box';
+  box.dataset.subject=subject;
+  box.dataset.body=body;
+  box.dataset.fullText=text.trim();
+  if(hasSubject){
+    box.innerHTML=`<div class="output-part"><div class="output-part-label">Subject</div><div class="output-part-body">${escapeHtml(subject)}</div></div><div class="output-part"><div class="output-part-label">Body</div><div class="output-part-body">${escapeHtml(body)}</div></div>`;
+  } else {
+    box.textContent=text.trim();
   }
-  else if(type==='adult-member'){
-    const disc=discGroups('am');
-    const pay=v('am-payment');
-    prompt=`Write a welcome email for a new adult member who has signed up.
-Name: ${v('am-name')||'[Name]'} | PIN: ${v('am-pin')||'[PIN]'}
-Monthly rate: $${v('am-rate')}/month${disc.length?' ('+disc.join(', ')+' discount)':''}
-${v('am-billdate')?'Bill date: '+v('am-billdate'):''}
-Payment method: ${pay}${pay==='venmo'?' — Venmo is accepted, mention Kicksite request may still arrive':''}
-${v('am-pitch3mo')==='light'?'Lightly pitch 3-month upfront: $480 general/$450 discounted + free gi or rash guard and fight shorts, yearly contract, standard opt outs.':'Do not pitch the 3-month deal.'}
-${v('am-notes')?'Context: '+v('am-notes'):''}
-No em dashes. Warm but direct.`;
-  }
-  else if(type==='adult-yearly'){
-    const rate=v('ay-rate');
-    const gear=v('ay-gear');
-    const dg=v('ay-discount-group');
-    const buyout=rate==='1700'?'$320':'$300';
-    prompt=`Write a welcome email for a new adult member who has committed to a yearly contract.
-Name: ${v('ay-name')||'[Name]'} | PIN: ${v('ay-pin')||'[PIN]'}
-Yearly rate: $${rate} upfront${dg!=='none'?' ('+dg+' discount)':''}
-Effective monthly rate: $${Math.round(parseInt(rate)/12)}/month
-${gear==='ask'?'Gear: They have not yet chosen. Let them know they can pick a free gi OR rash guard + fight shorts, their choice.':gear==='gi'?'Gear: Gi selected.':'Gear: Rash guard + fight shorts selected.'}
-${v('ay-billdate')?'Start/bill date: '+v('ay-billdate'):''}
-Early termination is a 2-month buyout at undiscounted rate (${buyout}). Cancellation exceptions may apply for medical reasons or relocation 25+ miles. Mention exceptions calmly and tell them we can confirm with ownership if needed.
-${v('ay-notes')?'Context: '+v('ay-notes'):''}
-Tone: warm, congratulatory, make them feel good about the commitment. No em dashes.`;
-  }
-  else if(type==='kids-trial'){
-    prompt=`Write a welcome email to a parent for their child's 7-day kids BJJ trial.
-Parent: ${v('kt-parent')||'[Parent]'} | Child: ${v('kt-child')||'[Child]'}
-Trial PIN: ${v('kt-pin')||'[PIN]'}
-${v('kt-notes')?'Context: '+v('kt-notes'):''}
-Include: PIN on small iPad at front desk, kids schedule Mon-Thu 5-6pm, Monday No-Gi (tee+shorts fine), Tue-Thu Gi (loaner provided, washer/dryer on site), ignore Kicksite payment request, $120/month after trial, schedule link synthesisbjj.com/schedule. Warm, no pressure, no em dashes.`;
-  }
-  else if(type==='inquiry'){
-    const inc=[];
-    if(chk('inq-adult'))inc.push('adult pricing ($160 general / $150 discounted for LEOs, public health, veterans, first responders, college students, high schoolers with parent signature)');
-    if(chk('inq-kids'))inc.push('kids program ($120/month, Mon-Thu 5-6pm, loaner gi available)');
-    if(chk('inq-family'))inc.push('family discount ($10 off each additional member, max $425/month)');
-    if(chk('inq-trial'))inc.push('free 7-day trial as the lowest friction next step');
-    if(chk('inq-3mo'))inc.push('3-month upfront deal ($480/$450 + free gi or rash guard and fight shorts, yearly contract, standard opt outs)');
-    if(chk('inq-yearly'))inc.push('yearly contract ($1,700 general / $1,500 discounted + free gi or rash guard and fight shorts, standard opt outs)');
-    if(chk('inq-schedule'))inc.push('schedule link: synthesisbjj.com/schedule');
-    prompt=`Write a program inquiry response.
-Prospect: ${v('inq-name')||'[Name]'}
-Their inquiry: ${v('inq-message')||'General inquiry about programs and pricing'}
-Include: ${inc.join(', ')}
-Warm, informative, no pressure. No em dashes.`;
-  }
-  else if(type==='payment'){
-    const opts=[];
-    if(chk('pay-kicksite'))opts.push('Kicksite payment link (check spam)');
-    if(chk('pay-venmo'))opts.push('Venmo (Synthesis-BJJ, last 4: 4184)');
-    if(chk('pay-billdate'))opts.push('offer to move billing date');
-    if(chk('pay-discount'))opts.push('ask if they qualify for a discounted rate');
-    prompt=`Write a polite payment follow-up email.
-Member: ${v('pay-name')||'[Name]'}
-Situation: ${v('pay-situation')||'Payment method issue'}
-Options to offer: ${opts.join(', ')}
-Understanding, helpful, not aggressive. Easy for them to resolve. No em dashes.`;
-  }
+  if(act)act.style.display='flex';
+}
 
+function joinLines(lines){
+  return lines.filter(Boolean).join('\n');
+}
+
+function escapeHtml(text){
+  return text
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;');
+}
+
+function buildAdultTrialEmail(){
+  const name=v('at-name')||'there';
+  const pin=v('at-pin')||'[PIN]';
+  const discountAsked=discGroups('at');
+  const discountLine=discountAsked.length
+    ? `You may qualify for our discounted adult rate of $150/month based on ${discountAsked.join(', ')}.`
+    : `Adult membership is $160/month. If you think you may qualify for a discounted rate, just ask and we can check.`;
+  return joinLines([
+    'Subject: Your Synthesis BJJ Trial',
+    '',
+    `Hi ${name},`,
+    '',
+    'You can start your free 7-day trial any time.',
+    `When you come in, check in on the small iPad at the front desk and use PIN ${pin}.`,
+    v('at-kicksite')==='yes' ? 'If Kicksite sends a payment request during the trial, please ignore it.' : '',
+    discountLine,
+    v('at-notes') || '',
+    '',
+    'See you soon,',
+    'Charlie',
+    'Synthesis BJJ',
+    '(585) 256-1548'
+  ]);
+}
+
+function buildAdultMemberEmail(){
+  const name=v('am-name')||'there';
+  const rate=v('am-rate')==='150'?'$150/month':'$160/month';
+  const billDate=v('am-billdate');
+  const paymentMap={kicksite:'Kicksite',venmo:'Venmo',cash:'Cash / Check'};
+  const pitch3=v('am-pitch3mo')==='light'
+    ? 'If you ever want to look at a longer-term option, we can also show you the 3-month upfront option.'
+    : '';
+  return joinLines([
+    'Subject: Welcome to Synthesis BJJ',
+    '',
+    `Hi ${name},`,
+    '',
+    `You are all set at ${rate}.`,
+    v('am-pin') ? `Your check-in PIN is ${v('am-pin')}. Use it on the small iPad at the front desk when you come in.` : '',
+    billDate ? `Your billing date is ${billDate}.` : '',
+    `Your payment method is ${paymentMap[v('am-payment')]||'Kicksite'}.`,
+    pitch3,
+    v('am-notes') || '',
+    '',
+    'See you soon,',
+    'Charlie',
+    'Synthesis BJJ',
+    '(585) 256-1548'
+  ]);
+}
+
+function buildAdultYearlyEmail(){
+  const name=v('ay-name')||'there';
+  const rate=v('ay-rate')==='1500'?'$1,500/year':'$1,700/year';
+  const gearText=v('ay-gear')==='gi'
+    ? 'We have your free gi noted.'
+    : v('ay-gear')==='rashguard'
+      ? 'We have your rash guard and fight shorts noted.'
+      : 'You can choose a free gi or a rash guard and fight shorts.';
+  return joinLines([
+    'Subject: Your Synthesis BJJ Yearly Membership',
+    '',
+    `Hi ${name},`,
+    '',
+    `You are all set on the yearly membership at ${rate}.`,
+    gearText,
+    v('ay-billdate') ? `Your start date is ${v('ay-billdate')}.` : '',
+    'If anything changes, let us know. Medical or relocation 25+ miles may qualify for an exception, and we can confirm that if needed.',
+    v('ay-notes') || '',
+    '',
+    'See you soon,',
+    'Charlie',
+    'Synthesis BJJ',
+    '(585) 256-1548'
+  ]);
+}
+
+function buildKidsTrialEmail(){
+  const parent=v('kt-parent')||'there';
+  const child=v('kt-child')||'your child';
+  const pin=v('kt-pin')||'[PIN]';
+  return joinLines([
+    "Subject: Your Child's Synthesis BJJ Trial",
+    '',
+    `Hi ${parent},`,
+    '',
+    `${child} is all set for the free 7-day trial.`,
+    `When you come in, just check in on the small iPad at the front desk and use PIN ${pin}.`,
+    'Kids classes run Monday through Thursday from 5:00 to 6:00.',
+    'Monday is No-Gi. Tuesday through Thursday is Gi, and we have loaner gis available.',
+    'If Kicksite sends a payment request during the trial, please ignore it.',
+    'Kids membership is $120/month after the trial.',
+    v('kt-notes') || '',
+    '',
+    'See you soon,',
+    'Charlie',
+    'Synthesis BJJ',
+    '(585) 256-1548'
+  ]);
+}
+
+function buildInquiryEmail(){
+  const name=v('inq-name')||'there';
+  const points=[];
+  if(chk('inq-adult'))points.push('Adult membership is $160/month.');
+  if(chk('inq-kids'))points.push('Kids membership is $120/month.');
+  if(chk('inq-family'))points.push('We take $10 off each additional family member, with a household max of $425/month.');
+  if(chk('inq-trial'))points.push('The easiest next step is the free 7-day trial.');
+  if(chk('inq-3mo'))points.push('We also have a 3-month upfront option if you want to compare.');
+  if(chk('inq-yearly'))points.push('We also have a yearly option if you want to compare.');
+  if(chk('inq-schedule'))points.push('You can see the schedule here: synthesisbjj.com/schedule');
+  return joinLines([
+    'Subject: Synthesis BJJ Information',
+    '',
+    `Hi ${name},`,
+    '',
+    'Thanks for reaching out. Here is some info:',
+    '',
+    ...points,
+    '',
+    'If you want, I can help you pick the best first class to try.',
+    '',
+    'Charlie',
+    'Synthesis BJJ',
+    '(585) 256-1548'
+  ]);
+}
+
+function buildPaymentEmail(){
+  const name=v('pay-name')||'there';
+  const options=[];
+  if(chk('pay-kicksite'))options.push('Kicksite payment link');
+  if(chk('pay-venmo'))options.push('Venmo');
+  if(chk('pay-billdate'))options.push('bill date change');
+  if(chk('pay-discount'))options.push('discount check');
+  return joinLines([
+    'Subject: Quick Billing Follow-Up',
+    '',
+    `Hi ${name},`,
+    '',
+    'I wanted to follow up on your billing.',
+    v('pay-situation') || 'Let us know the best way to get this taken care of.',
+    options.length ? `We can help with: ${options.join(', ')}.` : '',
+    '',
+    'Let me know what works best for you.',
+    '',
+    'Charlie',
+    'Synthesis BJJ',
+    '(585) 256-1548'
+  ]);
+}
+
+function generateEmail(type){
+  const builders={
+    'adult-trial':buildAdultTrialEmail,
+    'adult-member':buildAdultMemberEmail,
+    'adult-yearly':buildAdultYearlyEmail,
+    'kids-trial':buildKidsTrialEmail,
+    'inquiry':buildInquiryEmail,
+    'payment':buildPaymentEmail
+  };
   const map={'adult-trial':'email-trial-adult','adult-member':'email-member-adult','adult-yearly':'email-yearly-adult','kids-trial':'email-trial-kids','inquiry':'email-inquiry','payment':'email-payment'};
-  callClaude(prompt,map[type],map[type]);
+  const builder=builders[type];
+  if(!builder)return;
+  setLocalOutput(map[type],builder());
 }
 
 function calcPricing(){
@@ -1144,12 +1304,12 @@ function generateObjection(){
   const context=v('obj-situation');
   const scripts={
     cost:{
-      say:'For adults it is $160 a month, or $150 if they qualify for the discounted rate. If more than one family member is training, we also take $10 off each additional member.',
-      next:'Quote the exact monthly total and stop there unless they ask for more.'
+      say:'For adults it is $160 a month. If more than one family member is training, we also take $10 off each additional member.',
+      next:'Quote the exact monthly total first. Only bring up discounts if they ask.'
     },
     commitment:{
-      say:'The easiest next step is the free 7-day trial so they can see if it fits before making a decision.',
-      next:'Offer the trial instead of explaining contract details first.'
+      say:'The easiest next step is the free 7-day trial so they can see if it fits before making a decision. They can also stay month to month.',
+      next:'Offer the trial and keep it simple.'
     },
     time:{
       say:'We have morning, evening, and weekend classes, so most people can get started without needing a perfect schedule.',
@@ -1164,7 +1324,7 @@ function generateObjection(){
       next:'Keep it positive. Do not compare gym-to-gym in detail.'
     },
     yearly:{
-      say:'No problem. Monthly is still a solid option, and they can always switch later if they decide the yearly plan makes sense for them.',
+      say:'No problem. Month to month is still a solid option, and they can always switch later if the yearly plan makes sense for them.',
       next:'Stay on monthly unless they ask to compare options.'
     },
     other:{
@@ -1185,11 +1345,21 @@ function generateObjection(){
 
 function generateDropinEmail(){
   const dur={single:'single day ($30)',week1:'one week ($75)',week2:'two weeks ($100)',week3:'three weeks ($150)',week4:'four weeks ($160)'};
-  const prompt=`Write a short friendly confirmation for a drop-in or visiting member.
-Name: ${v('di-name')||'[Name]'}
-Duration: ${dur[v('di-duration')]}
-Mention they have full access during their visit and payment options: Kicksite, Venmo (Synthesis-BJJ last 4: 4184), or cash. No em dashes.`;
-  callClaude(prompt,'dropin','dropin');
+  const text=joinLines([
+    'Subject: Your Visit to Synthesis BJJ',
+    '',
+    `Hi ${v('di-name')||'there'},`,
+    '',
+    `You are all set for ${dur[v('di-duration')]||'your visit'}.`,
+    'You will have full access during your visit.',
+    'Payment options are Kicksite, Venmo, or cash.',
+    '',
+    'See you soon,',
+    'Charlie',
+    'Synthesis BJJ',
+    '(585) 256-1548'
+  ]);
+  setLocalOutput('dropin',text);
 }
 
 // Auto-link: discount checkboxes → rate dropdown (Adult Membership)
