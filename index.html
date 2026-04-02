@@ -846,9 +846,9 @@ Discounted rate: LEOs, first responders, public health workers, veterans, colleg
 Family: $10 off each additional household member, max $425/month, same household only
 Month-to-month is available. Do not volunteer discounts unless the member asks or clearly qualifies and it is relevant.
 
-3-MONTH UPFRONT (adult only): $480 general | $450 discounted. Includes free gi OR rash guard + fight shorts (their choice). Yearly contract, standard opt outs apply.
+3-MONTH UPFRONT (adult only): $480 general | $450 discounted. Includes free gi OR rash guard + fight shorts (their choice). Runs on a 12-month contract. In practice, cancellations are accepted for almost any reason with notice -- health, work changes, relocation, and school are the most common. Members can also pause (freeze) for semester breaks, temporary work changes, or other life situations. Just reach out before the next bill date. Never lead with cancellation terms; mention them warmly only if asked or clearly relevant.
 
-ADULT YEARLY CONTRACT: $1,700 general | $1,500 discounted. Includes free gi OR rash guard + fight shorts. Yearly contract. Early termination is a 2-month buyout at undiscounted rate ($320 general / $300 discounted). Cancellation exceptions may apply for medical reasons or relocation 25+ miles. Never quote penalties unprompted. Defer to ownership if raised.
+ADULT YEARLY CONTRACT: $1,700 general | $1,500 discounted. Includes free gi OR rash guard + fight shorts. Yearly contract. Early termination is a 2-month buyout at undiscounted rate ($320 general / $300 discounted). In practice, cancellations are accepted for most reasons with notice -- health, work, relocation, school. Members can also pause for semester breaks or temporary changes. Never quote the buyout unprompted. Defer specifics to ownership if raised.
 
 KIDS YEARLY: 1 kid $1,200/year (~$100/mo). 2 kids $2,300/year (~$96/mo each). Early termination: $120/child (2 kids = $240). Standard opt outs apply.
 FAMILY YEARLY CAP: $5,100/year.
@@ -1118,7 +1118,7 @@ function buildAdultTrialEmail(){
     ? `After the trial, membership is $150/month. We offer that rate for ${disc.join(', ')}.`
     : 'After the trial, membership is $160/month.';
   const pitch3=v('am-pitch3mo')!=='no'
-    ? 'If you want to lock in a better rate, we have a 3-month upfront option: $480 general or $450 discounted. It includes a free gi or rashguard and fight shorts, and runs on a 12-month contract with standard opt-outs for relocation, work changes, or health -- just reach out before your next bill date.'
+    ? 'If you want to lock in a better rate, we have a 3-month upfront option: $480 general or $450 discounted. It includes a free gi or rashguard and fight shorts. It runs on a 12-month contract, but we work with you if life gets in the way -- health, work, school, relocation, and most situations qualify. You can also pause for a semester break or a temporary change. Just give us a heads-up before your next bill date.'
     : '';
   return joinLines([
     'Subject: Welcome to Synthesis BJJ -- Your Trial Starts Now',
@@ -1150,7 +1150,7 @@ function buildAdultMemberEmail(){
   const billDate=v('am-billdate');
   const paymentMap={kicksite:'Kicksite',venmo:'Venmo',cash:'Cash / Check'};
   const pitch3=v('am-pitch3mo')==='light'
-    ? 'If you ever want to look at a longer-term option, we can also show you the 3-month upfront option.'
+    ? 'If you ever want to look at a longer-term option, we have a 3-month upfront deal at $480 general or $450 discounted. It includes free gear and runs on a 12-month contract -- but we work with you if anything changes. Most situations qualify, and you can pause for things like semester breaks or temporary work changes.'
     : '';
   return joinLines([
     'Subject: Welcome to Synthesis BJJ',
@@ -1187,7 +1187,7 @@ function buildAdultYearlyEmail(){
     `You are all set on the yearly membership at ${rate}.`,
     gearText,
     v('ay-billdate') ? `Your start date is ${v('ay-billdate')}.` : '',
-    'If anything changes, let us know. Medical or relocation 25+ miles may qualify for an exception, and we can confirm that if needed.',
+    'If anything comes up, just reach out before your next bill date. Health, work changes, school, relocation -- most situations are workable, and you can also pause rather than cancel if it is temporary.',
     v('ay-notes') || '',
     '',
     'See you soon,',
@@ -1244,7 +1244,7 @@ function buildKidsYearlyEmail(){
     `${children} ${count==='2'?'are':'is'} all set on the kids yearly membership at ${rate} (${monthly}).`,
     startDate ? `Start date: ${startDate}.` : '',
     '',
-    `If anything comes up and you need to cancel, the early termination is ${buyout}. The standard exceptions still apply for relocation, work changes, or health -- just reach out before the next bill date and we will take care of it.`,
+    `If anything comes up, just reach out before the next bill date. Health, work, school, relocation -- most situations are workable. You can also pause rather than cancel if it is temporary, like a semester break or a busy stretch.${buyout?' If it does need to be a full cancellation, the early termination fee is '+buyout+'.':''}`,
     '',
     'If you want to try it first, the free 7-day trial is always available before committing.',
     v('ky-notes') ? '\n'+v('ky-notes') : '',
