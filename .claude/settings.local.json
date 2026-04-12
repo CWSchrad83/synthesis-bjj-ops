@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"C:\\\\Users\\\\cwsch\\\\OneDrive\\\\Desktop\\\\Synthesis BJJ Ops\")",
+      "Read(//c/Downloads/**)",
+      "Bash(unzip -o \"synthesis-bjj-ops-v2.zip\" -d \"/c/Downloads/bjj-v2-extracted\")",
+      "Read(//c/Users/cwsch/OneDrive/Desktop/Synthesis BJJ Ops/**)",
+      "Bash(find '/c/Users/cwsch/OneDrive/Desktop/Synthesis BJJ Ops' -maxdepth 3 -name package.json -o -name *.config.js -o -name *.config.ts -o -name Makefile -o -name Procfile -o -name *.py)",
+      "Bash(zip -r \"/c/Users/cwsch/Downloads/synthesis-bjj-ops-v3.zip\" index.html)",
+      "Bash(powershell.exe -Command \"Compress-Archive -Path ''index.html'' -DestinationPath ''C:\\\\Users\\\\cwsch\\\\Downloads\\\\synthesis-bjj-ops-v3.zip'' -Force\")",
+      "Bash(powershell.exe -Command \"[Environment]::GetFolderPath\\(''UserProfile''\\)\")",
+      "Bash(powershell.exe -Command \"Get-ItemProperty ''HKCU:\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Explorer\\\\Shell Folders'' | Select-Object ''{374DE290-123F-4565-9164-39C4925E467B}''\")",
+      "Bash(powershell.exe -Command \"Compress-Archive -Path ''index.html'' -DestinationPath ''C:\\\\Downloads\\\\synthesis-bjj-ops-v3.zip'' -Force\")",
+      "Bash(grep -n '>[0-9],[0-9]\\\\{3\\\\}<\\\\|>[0-9]\\\\{2\\\\}<' \"/c/Users/cwsch/OneDrive/Desktop/Synthesis BJJ Ops/index.html\")",
+      "Bash(gh auth:*)",
+      "Bash(gh repo:*)",
+      "Bash(gh api:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(python3:*)",
+      "Bash(powershell.exe -Command \"Compress-Archive -Path ''C:\\\\Users\\\\cwsch\\\\OneDrive\\\\Desktop\\\\Synthesis BJJ Ops\\\\index.html'' -DestinationPath ''C:\\\\Downloads\\\\synthesis-bjj-ops-offline.zip'' -Force\")"
+    ]
+  }
+}
